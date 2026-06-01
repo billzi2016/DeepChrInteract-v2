@@ -95,78 +95,59 @@ N → [0, 0, 0, 0, 1]
 
 ## 模型架构
 
-所有模型均为二分类，最终输出 sigmoid 概率。
+所有模型均为二分类（sigmoid 输出），双路结构（E、P 各自编码后融合）为默认。
+共 14 个编码器变体，按技术路线分为 5 组。
 
-### M1：One-Hot CNN（单路，基线复现）
+---
 
-```
-Input: (B, 5, L)
-→ Conv1d × 3 (64 ch, k=24, s=4) + BN + ReLU + MaxPool
-→ Conv1d × 3 (128 ch, k=24, s=4) + BN + ReLU + MaxPool
-→ AdaptiveAvgPool → Flatten
-→ Linear(512) + Dropout(0.5) × 2
-→ Linear(1) + Sigmoid
-```
+### A 组：经典 CNN（原版复现）
 
-等价于原版 `model_onehot_cnn_one_branch`，但改用 Conv1d（原版错误地用 Conv2d 处理序列）。
+| 编号 | 名称 | 输入 | 核心结构 |
+|------|------|------|---------|
+| M1 | CNN 单路 | One-Hot (5, L) | Conv1d×3(64ch,k=24,s=4)+BN+ReLU+MaxPool，×2 stage |
+| M2 | CNN 双路 | One-Hot (5, L) | 双份 M1，特征后融合 |
+| M3 | k-mer + CNN | Token (L-5) | Embedding(4097→128) + Conv1d×4(64ch,k=32,s=8) |
 
-### M2：One-Hot CNN（双路，原版复现）
+> M1/M2 复现原版 `model_onehot_cnn_one/two_branch`，修正原版错误（Conv2d→Conv1d）。
 
-增强子和启动子各自独立走 M1 的 CNN 提取器，再将两路特征进行**融合**（见下文融合策略）后接分类头。
+---
 
-### M3：K-mer Embedding + CNN（单路 / 双路）
+### B 组：RNN / LSTM 族
 
-```
-Token Seq → Embedding(4097, 128)
-→ Conv1d × 4 (64 ch, k=32, s=8) + MaxPool × 4
-→ Flatten → Dense → Classify
-```
+| 编号 | 名称 | 核心结构 | 特点 |
+|------|------|---------|------|
+| M4 | BiLSTM | BiLSTM(hidden=256, layers=2, dropout=0.3) | 双向，捕获前后文依赖 |
+| M5 | mLSTM (xLSTM) | 2×双向 mLSTM (d_k=d_v=128，矩阵记忆 C_t) | 矩阵记忆，训练时完全可并行 |
 
-复现原版 `model_embedding_cnn_one_branch` / `model_embedding_cnn_two_branch`。
+---
 
-### M4：BiLSTM（新增）
+### C 组：Transformer 族
 
-```
-One-Hot / Embedding Input
-→ BiLSTM(hidden=256, layers=2, dropout=0.3)
-→ 取最后时间步 hidden（前向 + 后向拼接）
-→ Linear(256) → Linear(1)
-```
+| 编号 | 名称 | 复杂度 | 核心结构 |
+|------|------|--------|---------|
+| M6 | Transformer（标准） | O(L²)→CNN 降至~500 token | CNN 前端降采样 + 4层 Transformer (d=256, nhead=8) + CLS |
+| M7 | Linear Transformer | O(Ld²) | ELU+1 核函数近似注意力，**无需降采样** |
+| M8 | iTransformer | O(C²L)，C=5 | **反转注意力**：在 5 个核苷酸通道间建模，FFN 处理位置 |
 
-双路版本：E、P 各自过 BiLSTM，特征后融合。
+---
 
-### M5：Transformer Encoder（新增）
+### D 组：线性递推 / 状态空间模型
 
-```
-One-Hot / Embedding Input → Linear Projection (d_model=256)
-→ Positional Encoding（正弦式）
-→ TransformerEncoder(nhead=8, num_layers=4, dim_feedforward=1024, dropout=0.1)
-→ CLS token 或 Global Average Pooling
-→ Linear(256) → Linear(1)
-```
+| 编号 | 名称 | 复杂度 | 核心结构 |
+|------|------|--------|---------|
+| M9 | Mamba | O(L) | 选择性 SSM（输入依赖 A/B/C 矩阵），并行 associative scan |
+| M10 | RWKV | O(L) 训练，O(1)/步推理 | Time-mixing（指数衰减）+ Channel-mixing，4层 d=256 |
 
-双路版本：E、P 各自过 Transformer，特征后融合。  
-注意：序列极长（10k bp），需做**下采样**（Conv1d stride 降维至 ~500 后再送 Transformer）避免 O(n²) attention 爆显存。
+---
 
-### M6：CNN + BiLSTM（混合，推荐）
+### E 组：混合 + 预训练编码器
 
-```
-One-Hot Input
-→ CNN 特征提取（同 M1，输出约 500 时间步）
-→ BiLSTM(hidden=256, layers=2)
-→ 融合 → 分类
-```
-
-CNN 充当卷积特征提取器，BiLSTM 捕获长程依赖。
-
-### M7：CNN + Transformer（混合）
-
-```
-One-Hot Input
-→ CNN 特征提取（降维）
-→ Transformer Encoder
-→ 融合 → 分类
-```
+| 编号 | 名称 | 核心结构 |
+|------|------|---------|
+| M11 | CNN + BiLSTM | CNN 特征提取（~500 tokens）→ BiLSTM |
+| M12 | CNN + Transformer | CNN 降采样 → 标准 Transformer |
+| M13 | DNA LLM（冻结/微调） | DNABERT / DNABERT-2 / Nucleotide Transformer / HyenaDNA → 线性投影 |
+| M14 | MAE 预训练 Transformer | 先用遮蔽自编码（掩码率 75%）无监督预训练 M6 的编码器，再在 EPI 标签上微调 |
 
 ---
 
@@ -196,11 +177,17 @@ DeepChrInteract-v2/
 │   ├── dataset.py               # Dataset、DataLoader、在线 One-Hot
 │   ├── encoders.py              # OneHotEncoder、KmerTokenizer、EmbeddingEncoder
 │   ├── models/
-│   │   ├── cnn.py               # M1/M2 CNN 模型
+│   │   ├── cnn.py               # M1/M2 CNN
 │   │   ├── bilstm.py            # M4 BiLSTM
 │   │   ├── transformer.py       # M5 Transformer
 │   │   ├── cnn_bilstm.py        # M6 混合
 │   │   ├── cnn_transformer.py   # M7 混合
+│   │   ├── llm_encoder.py       # M8 DNA LLM adapter
+│   │   ├── mamba.py             # M9 Mamba SSM
+│   │   ├── linear_transformer.py # M10 Linear Attention
+│   │   ├── itransformer.py      # M11 iTransformer
+│   │   ├── rwkv.py              # M12 RWKV
+│   │   ├── mlstm.py             # M13 mLSTM (xLSTM)
 │   │   └── fusion.py            # 所有融合策略
 │   ├── train.py                 # 训练主循环（早停、LR 调度、权重保存）
 │   ├── evaluate.py              # AUROC、AUPRC、Accuracy、F1 计算
@@ -265,6 +252,14 @@ DeepChrInteract-v2/
 | E06 | One-Hot | Transformer (双路) | concat+sub+mul |
 | E07 | One-Hot | CNN+BiLSTM (双路) | concat+sub+mul |
 | E08 | One-Hot | CNN+Transformer (双路) | concat+sub+mul |
+| E09 | DNABERT-2 | M13 LLM frozen (双路) | concat+sub+mul |
+| E10 | HyenaDNA | M13 LLM fine-tune (双路) | concat+sub+mul |
+| E11 | One-Hot | M9 Mamba (双路) | concat+sub+mul |
+| E12 | One-Hot | M7 Linear Transformer (双路) | concat+sub+mul |
+| E13 | One-Hot | M8 iTransformer (双路) | concat+sub+mul |
+| E14 | One-Hot | M10 RWKV (双路) | concat+sub+mul |
+| E15 | One-Hot | M5 mLSTM / xLSTM (双路) | concat+sub+mul |
+| E16 | One-Hot | M14 MAE 预训练 Transformer (双路) | concat+sub+mul |
 
 ---
 
@@ -285,7 +280,7 @@ DeepChrInteract-v2/
 | 框架 | Keras 1.x / TF 2.x | PyTorch 2.x |
 | 序列处理 | 存为 PNG 再用 ImageDataGenerator | 在线 One-Hot，纯 Tensor |
 | 卷积 | Conv2d 处理序列（不合理） | Conv1d |
-| 序列模型 | 无 | BiLSTM、Transformer |
+| 序列模型 | 无 | BiLSTM、Transformer、Mamba、Linear Transformer、iTransformer、RWKV、mLSTM |
 | 融合策略 | 仅 concat | concat / sub / mul / bilinear / 组合 |
 | 评估 | 仅 Accuracy | AUROC + AUPRC + F1 |
 | 代码质量 | 单文件、魔法数字、中英混杂 | 模块化、配置驱动、类型注解 |

@@ -6,56 +6,97 @@
 Chromatin interactions---most prominently captured by Hi-C~\cite{hic}---reflect the
 three-dimensional folding of the genome and are mediated by architectural proteins
 such as CTCF and cohesin~\cite{ctcf}.
-Early computational approaches to predict these interactions relied on epigenomic
-features: TargetFinder~\cite{targetfinder} combined boosted trees with DNase-seq,
-histone mark ChIP-seq, CAGE, and DNA methylation features, achieving strong
-cell-type-specific prediction.
-These feature-engineering approaches, while effective, require experimental data
-that is expensive to generate and unavailable for most cell types or conditions.
+Early computational approaches relied on epigenomic features: TargetFinder~\cite{targetfinder}
+combined boosted trees with DNase-seq, histone mark ChIP-seq, CAGE, and DNA methylation
+data, achieving strong cell-type-specific prediction but requiring expensive assays
+unavailable for most conditions.
 
-\subsection{Sequence-Based Enhancer--Promoter Prediction}
+\subsection{Sequence-Based EPI Prediction}
 
-The first deep learning method to predict EPI from DNA sequence alone was
-SPEID~\cite{speid}, which concatenated one-hot encoded enhancer and promoter
-sequences and processed them through a stack of 1D convolutions followed by LSTM
-layers.  SPEID demonstrated that regulatory grammar embedded in raw sequence
-suffices for competitive EPI prediction across six human cell lines.
-DeepC~\cite{deepc} extended sequence-based chromatin contact prediction to megabase
-scale using dilated convolutions and transfer learning from DNase-seq.
-EPI-Trans~\cite{epitrans} replaced convolutional backbones with a Transformer
-encoder and reported improved AUROC on multiple benchmarks, underscoring the utility
-of self-attention for modelling long-range sequence context.
+The first deep learning method to predict EPI from raw DNA sequence was
+SPEID~\cite{speid}, which processed one-hot encoded enhancer and promoter sequences
+through stacked 1D convolutions followed by LSTM layers.
+DeepC~\cite{deepc} extended this to megabase-scale chromatin contact prediction using
+dilated convolutions and DNase-seq transfer learning.
+EPI-Trans~\cite{epitrans} replaced convolutional backbones with a Transformer encoder,
+reporting improved AUROC on multiple benchmarks.
 
-\subsection{DNA Representation Learning}
+\subsection{CNN and ResNet for Regulatory Genomics}
 
-DeepSEA~\cite{deepsea} was among the first large-scale applications of CNNs to
-regulatory genomics, learning to predict chromatin accessibility and transcription
-factor binding from 1 kb DNA windows.
-The recent emergence of DNA foundation models trained by masked language modelling
-has substantially raised the bar for sequence representations.
-DNABERT~\cite{dnabert} adapts the BERT architecture~\cite{attention_all_you_need}
-to 6-mer tokenised DNA, yielding representations that transfer effectively to
-promoter prediction, splice-site detection, and transcription factor binding.
-DNABERT-2~\cite{dnabert2} replaces fixed-length $k$-mer tokenisation with
-Byte Pair Encoding (BPE) and scales to multi-species genomes, achieving superior
-efficiency and cross-species generalisation.
+DeepSEA~\cite{deepsea} pioneered the application of CNNs to chromatin-profiling data,
+learning sequence features predictive of transcription factor binding and chromatin
+accessibility from 1 kb windows.
+ResNet~\cite{resnet} architectures have since been adapted to genomics, providing residual
+connections that facilitate training deep sequence models.
+
+\subsection{RNN and LSTM Variants}
+
+Classical BiLSTM~\cite{lstm} models have been widely applied in genomics to capture
+directional sequence context.
+xLSTM~\cite{xlstm} (Extended LSTM) introduces two advances over the classical model:
+sLSTM (scalar memory with improved mixing) and mLSTM (matrix memory with a covariance
+update rule, fully parallelisable), both stabilised via exponential gating.
+The mLSTM variant is of particular interest for long regulatory sequences, as its matrix
+memory $\mathbf{C}_t \in \mathbb{R}^{d_k \times d_v}$ retains richer contextual state
+than the scalar LSTM cell.
+
+\subsection{Transformer Variants for Long Sequences}
+
+Standard self-attention has $O(L^2)$ complexity, prohibitive for raw 10 kbp sequences.
+Three orthogonal solutions are incorporated in this work.
+
+\textbf{Linear attention}~\cite{linear_transformer} re-expresses dot-product attention
+via kernel feature maps, reducing complexity to $O(Ld^2)$ while preserving the global
+receptive field.
+
+\textbf{iTransformer}~\cite{itransformer} inverts the attention dimension: instead of
+attending across positions, attention is applied across \emph{channels} (nucleotide
+types), reducing complexity from $O(L^2 C)$ to $O(C^2 L)$, where $C = 5 \ll L$.
+
+\textbf{BERT / DNABERT}~\cite{dnabert} adapts the bidirectional encoder representation
+pre-trained with masked language modelling to 6-mer tokenised DNA.
+The BERT encoder is the architectural backbone of all LLM-based encoders considered
+in this work.
+
+\subsection{Linear Recurrence and State Space Models}
+
+\textbf{Mamba}~\cite{mamba} (Gu and Dao, 2023) introduces input-dependent (selective)
+state space matrices, enabling dynamic filtering of informative content.
+Mamba processes sequences in $O(L)$ time via hardware-efficient parallel associative
+scans.
+
+\textbf{RWKV}~\cite{rwkv} (Peng et al., 2023) reconciles Transformer parallelism
+with RNN inference efficiency through a time-mixing mechanism based on element-wise
+exponential decay, achieving $O(1)$ per-step cost at inference.
+
+\textbf{HyenaDNA}~\cite{hyenadna} replaces attention with implicit long convolutions
+(Hyena operators), supporting context lengths up to $10^6$ tokens at single-nucleotide
+resolution.
+
+\subsection{Self-Supervised Pre-training: MAE}
+
+Masked Autoencoders (MAE)~\cite{mae} offer a complementary pre-training paradigm to
+masked language modelling: a large fraction of input tokens (75\% in the original
+vision work) is masked, and the encoder learns to reconstruct the missing content.
+Unlike BERT-style objectives that predict discrete token identities, MAE targets
+continuous-valued reconstruction, which may learn richer spatial representations.
+Applied to DNA sequences, MAE pre-training can be used to initialise the Transformer
+encoder with self-supervised sequence features before fine-tuning on labelled EPI
+pairs.
+
+\subsection{DNA Foundation Models}
+
+DNABERT-2~\cite{dnabert2} replaces $k$-mer tokenisation with Byte Pair Encoding (BPE)
+and scales pre-training to 135 species.
 The Nucleotide Transformer~\cite{nucleotide_transformer} trains models up to 2.5B
-parameters on 3,202 human genomes and 850 diverse-species genomes, yielding
-context-specific representations that benefit low-data fine-tuning on regulatory tasks.
-HyenaDNA~\cite{hyenadna} addresses the quadratic attention bottleneck by substituting
-self-attention with Hyena operators (implicit long convolutions), enabling context
-lengths up to one million nucleotides at single-nucleotide resolution---particularly
-relevant for EPI prediction where the interacting elements may span tens of kilobases.
+parameters on 3,202 human genomes, yielding powerful low-data representations.
 
 \subsection{Multi-Path Interaction Modelling}
 
-A core design question in dual-sequence models is how to combine the representations
-of the two interacting elements.
+A core design question in dual-sequence EPI models is how to combine enhancer and
+promoter representations.
 Simple concatenation~\cite{speid} ignores cross-sequence interaction, while element-wise
-subtraction and multiplication have been shown to capture complementary aspects of
-semantic similarity in natural language inference~\cite{attention_all_you_need}.
-Bilinear interaction layers provide the most expressive pairwise model at the cost of
-quadratic parameter growth.
-In the EPI context, the enhancer and promoter representations encode distinct regulatory
-signals; their interaction is likely asymmetric, motivating the combination of multiple
-fusion paths explored in this work.
+subtraction and multiplication capture complementary semantic differences and
+co-activations.
+Bilinear interaction layers provide the most expressive pairwise model.
+We provide all of the above as configurable fusion options.

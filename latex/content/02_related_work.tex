@@ -35,10 +35,12 @@ Classical BiLSTM~\cite{lstm} models have been widely applied in genomics to capt
 directional sequence context.
 xLSTM~\cite{xlstm} (Extended LSTM) introduces two advances over the classical model:
 sLSTM (scalar memory with improved mixing) and mLSTM (matrix memory with a covariance
-update rule, fully parallelisable), both stabilised via exponential gating.
-The mLSTM variant is of particular interest for long regulatory sequences, as its matrix
-memory $\mathbf{C}_t \in \mathbb{R}^{d_k \times d_v}$ retains richer contextual state
-than the scalar LSTM cell.
+update rule, fully parallelisable at training), both stabilised via exponential gating.
+Schmidinger~et~al.~\cite{bioxlstm} directly validate mLSTM on biological sequences
+in Bio-xLSTM, where mLSTM-based DNA models outperform Transformer, Mamba, and HyenaDNA
+on genomic benchmarks under both CLM and MLM pre-training objectives.
+Bio-xLSTM supports context lengths up to 32k nucleotides via chunkwise parallel
+processing, making it particularly well-suited to the 10\,kbp EPI sequences in this work.
 
 \subsection{Transformer Variants for Long Sequences}
 

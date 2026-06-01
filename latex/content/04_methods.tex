@@ -94,6 +94,8 @@ $c_t$ with a matrix $\mathbf{C}_t \in \mathbb{R}^{d_k \times d_v}$, updated via
 \end{equation}
 with stabilised normalisation preventing gradient explosion.
 We stack two bidirectional mLSTM layers ($d_k = d_v = 128$).
+Bio-xLSTM~\cite{bioxlstm} confirms that this architecture outperforms Mamba and
+HyenaDNA on DNA modelling benchmarks, supporting its inclusion here.
 
 % ============================================================
 \subsection{Group C: Transformer Family}

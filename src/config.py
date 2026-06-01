@@ -1,3 +1,19 @@
+"""
+config.py — 全局配置管理
+
+使用 Python dataclass 定义所有超参数，支持：
+  - argparse 命令行覆盖（训练时灵活指定参数）
+  - JSON 快照持久化（结果可复现）
+  - 固定随机种子（set_seed）
+  - 自动设备选择（cuda → mps → cpu）
+
+关键参数说明：
+  model_id       — 模型编号（M1–M14）
+  encoding_mode  — onehot / kmer / llm
+  fusion_strategy — 融合策略（默认 concat_sub_mul）
+  dummy          — True 时使用随机张量（无需真实数据）
+"""
+
 from __future__ import annotations
 
 import argparse

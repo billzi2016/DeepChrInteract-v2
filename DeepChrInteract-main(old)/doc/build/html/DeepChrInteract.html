@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeepChrInteract &mdash; DeepChrInteract 2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Organization" href="DataOrganization.html" />
+    <link rel="prev" title="QuickStart" href="QuickStart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> DeepChrInteract
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Catalog:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="QuickStart.html">QuickStart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DeepChrInteract</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#integrated-deep-learning-models">Integrated Deep learning models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-options">Model options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-training">Model training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-testing">Model testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="DataOrganization.html">Data Organization</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DeepChrInteract</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>DeepChrInteract</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/DeepChrInteract.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="deepchrinteract">
+<h1>DeepChrInteract<a class="headerlink" href="#deepchrinteract" title="Permalink to this headline">¶</a></h1>
+<section id="integrated-deep-learning-models">
+<h2>Integrated Deep learning models<a class="headerlink" href="#integrated-deep-learning-models" title="Permalink to this headline">¶</a></h2>
+<p>This release includes multiple models:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">onehot_cnn_one_branch</span></code></p>
+<blockquote>
+<div><p>Use one-hot encoding to represent two merged chromatin interaction regions as input, followed by multiple convolutional layers and dense layers</p>
+<img alt="_images/onehot_cnn_one_branch.png" src="_images/onehot_cnn_one_branch.png" />
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">onehot_cnn_two_branch</span></code></p>
+<blockquote>
+<div><p>Use one-hot encoding to represent two chromatin interaction regions separately as input for two branches of multiple convolutional layers, which will be merged and followed by multiple dense layers</p>
+<img alt="_images/onehot_cnn_two_branch.png" src="_images/onehot_cnn_two_branch.png" />
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">onehot_embedding_dense</span></code></p>
+<blockquote>
+<div><p>Use one-hot encoding to represent two merged chromatin interaction regions, followed by a trainable embedding layer and multiple dense layers</p>
+<img alt="_images/onehot_cnn_one_branch.png" src="_images/onehot_cnn_one_branch.png" />
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">onehot_embedding_cnn_one_branch</span></code></p>
+<blockquote>
+<div><p>Use one-hot encoding to represent two merged chromatin interaction regions, followed by a trainable embedding layer, multiple convolutional layers and dense layers</p>
+<img alt="_images/onehot_embedding_cnn_one_branch.png" src="_images/onehot_embedding_cnn_one_branch.png" />
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">onehot_embedding_cnn_two_branch</span></code></p>
+<blockquote>
+<div><p>Use one-hot encoding to represent two chromatin interaction regions separately as input for two branches of multiple trainable embedding layers and convolutional layers, which will be merged and followed by dense layers</p>
+<img alt="_images/onehot_embedding_cnn_two_branch.png" src="_images/onehot_embedding_cnn_two_branch.png" />
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">onehot_dense</span></code></p>
+<blockquote>
+<div><p>Use one-hot encoding to represent two merged chromatin interaction regions, followed by multiple dense layers</p>
+<img alt="_images/onehot_dense.png" src="_images/onehot_dense.png" />
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">onehot_resnet18</span></code></p>
+<blockquote>
+<div><p>Use one-hot encoding to represent two merged chromatin interaction regions followed by multiple residual blocks structured in ResNet18</p>
+<img alt="_images/onehot_resnet18.png" src="_images/onehot_resnet18.png" />
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">embedding_cnn_one_branch</span></code></p>
+<blockquote>
+<div><p>Embed sequence merged from two regions using pretrained dna2vec embedding matrix as input, followed by multiple convolutional layers and dense layers</p>
+<img alt="_images/embedding_cnn_one_branch.png" src="_images/embedding_cnn_one_branch.png" />
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">embedding_cnn_two_branch</span></code></p>
+<blockquote>
+<div><p>Embed sequence from two regions using pretrained dna2vec embedding matrix respectively as input, followed by two branches of multiple convolutional layers, which will be merged and followed by dense layers</p>
+<img alt="_images/embedding_cnn_two_branch.png" src="_images/embedding_cnn_two_branch.png" />
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="model-options">
+<h2>Model options<a class="headerlink" href="#model-options" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">DeepChrInteract.py</span> <span class="pre">-h</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code></p></li>
+</ul>
+<p>This parameter is used to output <code class="docutils literal notranslate"><span class="pre">Help</span> <span class="pre">Page</span></code></p>
+</div></blockquote>
+</li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>************************************
+************************************
+
+Welcome to use DeepChrInteract
+
+************************************
+************************************
+
+begin <span class="nb">time</span> &gt;&gt;&gt; Thu Nov <span class="m">11</span> <span class="m">00</span>:09:03 <span class="m">2021</span>
+
+
+If it is the first <span class="nb">time</span> to use, please preprocess the data first.
+Use the command: python3 DeepChrInteract.py -p <span class="nb">true</span> -n <span class="o">[</span>gene name<span class="o">]</span>
+For example: python3 DeepChrInteract.py -p <span class="nb">true</span> -n AD2.po
+
+usage: DeepChrInteract.py <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-p PREPROCESSING<span class="o">]</span> <span class="o">[</span>-m MODEL<span class="o">]</span> <span class="o">[</span>-t TYPE<span class="o">]</span> <span class="o">[</span>-n NAME<span class="o">]</span> <span class="o">[</span>-o OBJECT<span class="o">]</span> <span class="o">[</span>-l LENGTH<span class="o">]</span>
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -p PREPROCESSING, --preprocessing PREPROCESSING
+                                                Preprocess the data, <span class="k">if</span> you enter <span class="o">[</span>true<span class="o">]</span> <span class="o">(</span><span class="k">case</span> sensitive<span class="o">)</span>, <span class="k">then</span> proceed, <span class="k">if</span> no, pass this process. Note: This <span class="nb">command</span> only needs to be entered once.
+  -m MODEL, --model MODEL
+                                                Enter the model name which your choose: <span class="o">[</span>onehot_cnn_one_branch<span class="o">]</span> / <span class="o">[</span>onehot_cnn_two_branch<span class="o">]</span> / <span class="o">[</span>onehot_embedding_dense<span class="o">]</span> / <span class="o">[</span>onehot_embedding_cnn_one_branch<span class="o">]</span> /
+                                                <span class="o">[</span>onehot_embedding_cnn_two_branch<span class="o">]</span> / <span class="o">[</span>onehot_dense<span class="o">]</span> / <span class="o">[</span>onehot_resnet18<span class="o">]</span> / <span class="o">[</span>embedding_cnn_one_branch<span class="o">]</span> / <span class="o">[</span>embedding_cnn_two_branch<span class="o">]</span>
+                                                <span class="o">(</span>all use lowercase<span class="o">)</span>.
+  -t TYPE, --type TYPE  Please choose <span class="o">[</span>train<span class="o">]</span> / <span class="o">[</span>test<span class="o">]</span> <span class="o">(</span>all use lowercase<span class="o">)</span>.
+  -n NAME, --name NAME  Enter the gene name of your choice <span class="o">(</span>note: <span class="k">case</span> sensitive<span class="o">)</span>.
+                                                Here is the <span class="nb">source</span> gene name.
+  -o OBJECT, --object OBJECT
+                                                Enter the gene name of your choice <span class="o">(</span>note: <span class="k">case</span> sensitive<span class="o">)</span>.
+                                                Here is the object gene name.
+  -l LENGTH, --length LENGTH
+                                                Enter the length of gene, default is <span class="m">10001</span>.
+</pre></div>
+</div>
+</section>
+<section id="data-preparation">
+<h2>Data preparation<a class="headerlink" href="#data-preparation" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">DeepChrInteract.py</span> <span class="pre">-p</span> <span class="pre">true</span> <span class="pre">-n</span> <span class="pre">AD2.po</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">true</span></code></p></li>
+</ul>
+<p>This parameter is to convert DNA sequence in text file to <code class="docutils literal notranslate"><span class="pre">png</span></code> images for one-hot encoding input and python <code class="docutils literal notranslate"><span class="pre">npz</span></code> files for word-embedding input</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">AD2.po</span></code></p></li>
+</ul>
+<p>This parameter is the text file folder containing four DNA sequence files, which include <code class="docutils literal notranslate"><span class="pre">seq.anchor1.pos.txt</span></code>,``seq.anchor2.pos.txt``,
+<code class="docutils literal notranslate"><span class="pre">seq.anchor1.neg.txt</span></code>,``seq.anchor2.neg.txt``. Here is <code class="docutils literal notranslate"><span class="pre">AD2.po</span></code></p>
+</div></blockquote>
+</li>
+</ul>
+<p>In this example, the command will generate all <code class="docutils literal notranslate"><span class="pre">png</span></code> images and <code class="docutils literal notranslate"><span class="pre">npz</span></code> files in a folder named <code class="docutils literal notranslate"><span class="pre">AD2.po</span></code> in the <code class="docutils literal notranslate"><span class="pre">data</span></code> folder</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This command only needs to be used once. If it is entered again, the previous data will be overwritten.</p>
+</div>
+</section>
+<section id="model-training">
+<h2>Model training<a class="headerlink" href="#model-training" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">DeepChrInteract.py</span> <span class="pre">-m</span> <span class="pre">onehot_cnn_one_branch</span> <span class="pre">-t</span> <span class="pre">train</span> <span class="pre">-n</span> <span class="pre">AD2.po</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">onehot_cnn_one_branch</span></code></p></li>
+</ul>
+<p>This parameter is to select the deep learning model. A total of 10 deep learning models can be chosen, namely: <code class="docutils literal notranslate"><span class="pre">onehot_cnn_one_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_cnn_two_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_embedding_dense</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_embedding_cnn_one_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_embedding_cnn_two_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_dense</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_resnet18</span></code> / <code class="docutils literal notranslate"><span class="pre">embedding_cnn_one_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">embedding_cnn_two_branch</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">train</span></code></p></li>
+</ul>
+<p>This parameter is used to select the type of use, either <code class="docutils literal notranslate"><span class="pre">train</span></code> or <code class="docutils literal notranslate"><span class="pre">test</span></code> .</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">AD2.po</span></code></p></li>
+</ul>
+<p>This parameter is to select the input file name, which is the same as <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">preparation</span></code></p>
+</div></blockquote>
+</li>
+</ul>
+<p>In this example, the command will train the onehot_cnn_one_branch model and the training results will be stored in <code class="docutils literal notranslate"><span class="pre">h5_weight/AD2.po</span></code></p>
+</section>
+<section id="model-testing">
+<h2>Model testing<a class="headerlink" href="#model-testing" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">DeepChrInteract.py</span> <span class="pre">-m</span> <span class="pre">onehot_cnn_one_branch</span> <span class="pre">-t</span> <span class="pre">test</span> <span class="pre">-n</span> <span class="pre">AD2.po</span> <span class="pre">-o</span> <span class="pre">CM.po</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">onehot_cnn_one_branch</span></code></p></li>
+</ul>
+<p>This parameter is to select the deep learning model. A total of 10 deep learning models can be chosen, namely: <code class="docutils literal notranslate"><span class="pre">onehot_cnn_one_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_cnn_two_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_embedding_dense</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_embedding_cnn_one_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_embedding_cnn_two_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_dense</span></code> / <code class="docutils literal notranslate"><span class="pre">onehot_resnet18</span></code> / <code class="docutils literal notranslate"><span class="pre">embedding_cnn_one_branch</span></code> / <code class="docutils literal notranslate"><span class="pre">embedding_cnn_two_branch</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">test</span></code></p></li>
+</ul>
+<p>This parameter is used to select the type of use, whether it is <code class="docutils literal notranslate"><span class="pre">train</span></code> or <code class="docutils literal notranslate"><span class="pre">test</span></code> .</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">AD2.po</span></code></p></li>
+</ul>
+<p>This parameter is used to select the input file name (the same name as the folder where the file data is stored)
+The model used in this test is trained by AD2.po</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">CM.po</span></code></p></li>
+</ul>
+<p>This parameter is the name of the test target gene
+The final test result will be recorded in log.log (time stamp will also be recorded)</p>
+</div></blockquote>
+</li>
+</ul>
+<p>In this example, the command will use the trained onehot_cnn_one_branch model from <code class="docutils literal notranslate"><span class="pre">AD2.po</span></code> data and output the results to <code class="docutils literal notranslate"><span class="pre">result</span></code> folder with subfolder named <code class="docutils literal notranslate"><span class="pre">AD2.po</span></code> and <code class="docutils literal notranslate"><span class="pre">onehot_cnn_one_branch</span></code>.
+The final test result(auc_roc and Pearson Correlation Coefficient) will be recorded in log.log (time stamp will also be recorded)</p>
+<img alt="_images/div.png" src="_images/div.png" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="QuickStart.html" class="btn btn-neutral float-left" title="QuickStart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="DataOrganization.html" class="btn btn-neutral float-right" title="Data Organization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, bizi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

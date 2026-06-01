@@ -1,0 +1,49 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented DeepChrInteract-v2, a modern reimplementation of the original
+DeepChrInteract toolkit that brings the codebase to current PyTorch standards while
+substantially expanding its scientific scope.
+The key engineering contribution is the elimination of the PNG-based preprocessing
+pipeline in favour of in-memory on-the-fly one-hot encoding, reducing preprocessing
+time from hours to seconds and removing gigabytes of intermediate disk storage.
+
+On the scientific side, four new encoder families---BiLSTM, Transformer,
+CNN+BiLSTM hybrid, and CNN+Transformer hybrid---extend the coverage of the original
+benchmark to include the sequence modelling paradigms dominant in contemporary
+computational genomics.
+The integration of DNA foundation models (DNABERT-2, Nucleotide Transformer, HyenaDNA)
+as plug-in feature extractors positions the framework to leverage the rapid progress
+in genomic pre-training, while the configurable multi-path fusion module enables
+fine-grained study of enhancer--promoter interaction modelling strategies.
+
+\paragraph{Limitations.}
+(i) Due to the absence of GPU-accelerated servers during development, quantitative
+results in \Cref{sec:experiments} are placeholders pending experimental completion.
+(ii) LLM fine-tuning experiments are computationally expensive and may require
+$>$24~GB GPU memory for the largest Nucleotide Transformer variant.
+(iii) The dataset is limited to GM12878; broader cell-type benchmarks
+(e.g., K562, IMR90) are planned for future work.
+
+\paragraph{Future Directions.}
+\begin{itemize}[noitemsep]
+  \item \textbf{Cross-attention fusion.}
+        Rather than post-hoc vector operations, a cross-attention layer between
+        enhancer and promoter token sequences may capture interaction-specific
+        motif co-occurrences more faithfully.
+  \item \textbf{Contrastive pre-training.}
+        Self-supervised contrastive objectives on matched E--P pairs from
+        Hi-C data could provide richer representations without relying solely
+        on the limited number of labelled interactions.
+  \item \textbf{Multi-species transfer.}
+        Given the cross-species pre-training of DNABERT-2 and Nucleotide Transformer,
+        it would be valuable to assess whether models trained on human data generalise
+        to orthologous loci in mouse or zebrafish.
+\end{itemize}
+
+\paragraph{Reproducibility.}
+All code, configuration files, and preprocessing scripts are available at
+\url{https://github.com/lichen-lab/DeepChrInteract} (original) and in the
+\texttt{DeepChrInteract-v2/} directory of the same repository.
+All random seeds, hyperparameters, and evaluation protocols are specified in
+\texttt{src/config.py} to ensure full reproducibility.

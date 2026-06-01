@@ -1,0 +1,98 @@
+\section{Introduction}
+\label{sec:intro}
+
+The three-dimensional organisation of chromatin within the cell nucleus is intimately
+linked to gene regulation.
+Enhancers---short, \emph{cis}-regulatory DNA elements that can be located hundreds of
+kilobases away from their target genes---frequently communicate with promoters via
+long-range chromatin looping~\cite{hic, ctcf}.
+Detecting these enhancer--promoter interactions (EPI) on a genome-wide scale is
+central to understanding transcriptional control, yet high-throughput chromatin capture
+experiments such as Hi-C and ChIA-PET remain costly and cell-type-specific.
+Computational prediction of EPI from raw DNA sequence therefore offers a compelling
+complement to experimental assays, enabling large-scale analysis at low cost.
+
+Early machine-learning approaches to EPI prediction relied on hand-crafted features
+derived from ChIP-seq, DNase-seq, and other epigenomic assays~\cite{targetfinder},
+inherently limiting their applicability to cell types with rich epigenomic profiles.
+The advent of deep learning opened a new avenue: models such as DeepSEA~\cite{deepsea}
+demonstrated that convolutional neural networks (CNN) can learn regulatory grammars
+directly from DNA sequence characters, without manual feature engineering.
+Building on this insight, SPEID~\cite{speid} introduced the first sequence-only EPI predictor
+combining CNN and LSTM layers, reporting competitive AUROC on six human cell lines.
+More recently, Transformer-based architectures~\cite{attention_all_you_need, epitrans}
+have been applied to EPI and related regulatory prediction tasks, taking advantage of
+multi-head self-attention to capture long-range dependencies within sequences.
+Concurrently, DNA large language models (LLMs)---DNABERT~\cite{dnabert},
+DNABERT-2~\cite{dnabert2}, Nucleotide Transformer~\cite{nucleotide_transformer},
+and HyenaDNA~\cite{hyenadna}---pre-trained on billions of nucleotides via masked
+language modelling, now provide powerful contextual sequence representations that
+can be transferred to downstream tasks with minimal labelled data.
+
+The original \textbf{DeepChrInteract} toolkit was developed by the present author in
+collaboration with Li Chen at Indiana University, and made publicly available as an
+open-source Python package~\cite{deepchrinteract_doc}.
+DeepChrInteract provided a comprehensive benchmark of nine model configurations
+spanning four encoding strategies (one-hot, $k$-mer tokenisation, trainable embedding,
+combined one-hot--embedding) and four architectures (dense, CNN, ResNet-18, CNN
+with dual branches), constituting one of the most thorough sequence-level EPI
+comparison studies at the time of publication.
+
+However, the original codebase now suffers from several critical obsolescence issues
+that prevent reproduction:
+\begin{itemize}[noitemsep]
+  \item Dependency on \texttt{Keras~2.4.0} / \texttt{TensorFlow~2.3.0}, both of
+        which have undergone breaking API changes (deprecated \texttt{fit\_generator},
+        removed \texttt{keras.preprocessing.image.ImageDataGenerator} arguments, etc.).
+  \item An unconventional preprocessing pipeline that serialises one-hot encoded
+        sequences as PNG images on disk before feeding them to an
+        \texttt{ImageDataGenerator}---an approach that incurs unnecessary I/O
+        overhead and introduces conversion artefacts via 8-bit pixel quantisation.
+  \item Absence of modern sequence modelling components (BiLSTM, Transformer) and
+        LLM-based encoders, which represent the current state of the art.
+  \item Evaluation limited to classification accuracy, omitting the more informative
+        AUROC and AUPRC metrics standard in the EPI literature.
+\end{itemize}
+
+\paragraph{Contributions.}
+This paper presents \textbf{DeepChrInteract-v2}, a ground-up reimplementation that
+addresses all of the above limitations.
+Our specific contributions are:
+
+\begin{enumerate}[noitemsep]
+  \item \textbf{Modern codebase.}
+        A modular, configuration-driven PyTorch implementation with type annotations,
+        reproducible random seeding, and a unified training loop supporting early stopping
+        on val-AUROC.
+
+  \item \textbf{Efficient data pipeline.}
+        In-memory on-the-fly one-hot encoding via a vectorised NumPy kernel, eliminating
+        the PNG intermediate entirely.  $k$-mer tokenisation is also reimplemented using
+        a pure-Python tokeniser compatible with \texttt{torch.utils.data}.
+
+  \item \textbf{Extended architecture zoo.}
+        Four new model families are added: BiLSTM~\cite{lstm}, Transformer encoder,
+        CNN+BiLSTM hybrid, and CNN+Transformer hybrid, all available in single-branch
+        and dual-branch configurations.
+
+  \item \textbf{DNA LLM encoder integration.}
+        We provide plug-in adapters for DNABERT, DNABERT-2, Nucleotide Transformer,
+        and HyenaDNA, enabling frozen or fine-tuned feature extraction with minimal
+        boilerplate.
+
+  \item \textbf{Flexible fusion module.}
+        A configurable multi-path fusion layer supporting six interaction strategies
+        between enhancer and promoter representations.
+
+  \item \textbf{Comprehensive evaluation.}
+        Systematic ablation across eight configurations on the original \emph{GM12878}
+        dataset, reporting AUROC, AUPRC, and F1 with 95\% confidence intervals from
+        five independent runs.
+\end{enumerate}
+
+The remainder of this paper is organised as follows.
+\Cref{sec:related} reviews related work.
+\Cref{sec:data} describes the data format and encoding strategies.
+\Cref{sec:methods} details all model architectures and the fusion module.
+\Cref{sec:experiments} presents the experimental protocol and results.
+\Cref{sec:conclusion} concludes with a discussion of limitations and future work.

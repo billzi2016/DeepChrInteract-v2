@@ -1,0 +1,134 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Dataset}
+
+We use the \emph{GM12878} (Epstein--Barr virus-immortalised B-lymphocyte cell line)
+dataset from the original DeepChrInteract benchmark~\cite{deepchrinteract_doc},
+derived from publicly available Hi-C contact maps~\cite{hic}.
+The dataset contains paired enhancer--promoter sequences of length $L = 10{,}001$~bp,
+balanced between positive (interacting) and negative (non-interacting) pairs.
+Full dataset statistics are reported in \Cref{tab:dataset}.
+
+\begin{table}[H]
+\centering
+\caption{Dataset statistics for GM12878.}
+\label{tab:dataset}
+\begin{tabular}{lrrrr}
+\toprule
+Split & Positive & Negative & Total & Fraction \\
+\midrule
+Training   & --- & --- & --- & 80\% \\
+Validation & --- & --- & --- & 10\% \\
+Test       & --- & --- & --- & 10\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Note: statistics will be filled in upon execution of the preprocessing script on
+the raw data.}
+
+\subsection{Evaluation Metrics}
+
+We evaluate all models on three primary metrics:
+
+\begin{description}[noitemsep]
+  \item[AUROC] Area under the receiver operating characteristic curve.
+        The primary metric used in the original DeepChrInteract and SPEID papers.
+  \item[AUPRC] Area under the precision--recall curve.
+        More sensitive than AUROC for imbalanced datasets and preferred in
+        recent EPI literature.
+  \item[F1 Score] Harmonic mean of precision and recall at decision threshold 0.5.
+\end{description}
+
+Each configuration is trained five times with different random seeds
+($\{0,1,2,3,4\}$) and we report mean $\pm$ standard deviation.
+
+\subsection{Training Protocol}
+
+\begin{itemize}[noitemsep]
+  \item Optimiser: Adam~\cite{adam}, learning rate $5 \times 10^{-5}$, weight decay $10^{-5}$.
+  \item Batch size: 32.
+  \item Learning rate schedule: cosine annealing with warm restarts ($T_0 = 50$ epochs).
+  \item Early stopping: patience 15 epochs, monitored on validation AUROC.
+  \item Maximum epochs: 200.
+  \item GPU: experiments run on a single NVIDIA GPU with at least 8~GB VRAM.
+  \item For LLM fine-tuning: LLM layer learning rate $5 \times 10^{-6}$,
+        head learning rate $5 \times 10^{-5}$ (layerwise learning rate decay).
+\end{itemize}
+
+\subsection{Ablation Study: Model Configurations}
+
+\Cref{tab:ablation} lists the eight primary experimental configurations.
+
+\begin{table}[H]
+\centering
+\caption{Experiment configurations.
+         ``1B'' = single branch (E+P concatenated as input);
+         ``2B'' = dual branch (independent encoders + fusion);
+         fusion default = \textsc{Concat+Sub+Mul}.}
+\label{tab:ablation}
+\begin{tabular}{clllccc}
+\toprule
+ID & Encoder & Arch. & Branch & AUROC & AUPRC & F1 \\
+\midrule
+E01 & One-Hot  & CNN           & 1B & --- & --- & --- \\
+E02 & One-Hot  & CNN           & 2B & --- & --- & --- \\
+E03 & $k$-mer  & CNN           & 2B & --- & --- & --- \\
+E04 & One-Hot  & BiLSTM        & 2B & --- & --- & --- \\
+E05 & One-Hot  & Transformer   & 2B & --- & --- & --- \\
+E06 & One-Hot  & CNN+BiLSTM    & 2B & --- & --- & --- \\
+E07 & One-Hot  & CNN+Transformer & 2B & --- & --- & --- \\
+E08 & DNABERT-2  & LLM (frozen) & 2B & --- & --- & --- \\
+\midrule
+E09 & HyenaDNA & LLM (fine-tune) & 2B & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Fusion Strategy Ablation}
+
+Using E02 (CNN dual-branch) as the base model, we compare all six fusion strategies
+from \Cref{tab:fusion} on the GM12878 test set:
+
+\begin{table}[H]
+\centering
+\caption{Fusion strategy comparison (E02 base, GM12878 test set).}
+\label{tab:fusion_abl}
+\begin{tabular}{lccc}
+\toprule
+Fusion & AUROC & AUPRC & F1 \\
+\midrule
+Concat        & --- & --- & --- \\
+Add           & --- & --- & --- \\
+Subtract      & --- & --- & --- \\
+Multiply      & --- & --- & --- \\
+Bilinear      & --- & --- & --- \\
+Concat+Sub+Mul & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Cross-Cell-Type Generalisation}
+
+To assess generalisation beyond GM12878, the best-performing model is tested
+(without retraining) on held-out cell types from the original DeepChrInteract dataset.
+This evaluates whether the learned sequence grammar transfers across cell type contexts,
+as discussed in~\cite{speid}.
+
+\subsection{Expected Results and Baselines}
+
+The original DeepChrInteract~\cite{deepchrinteract_doc} reported AUROC values in the
+range of 0.70--0.83 on GM12878, with the CNN dual-branch (one-hot) as the strongest
+non-LLM baseline.
+SPEID~\cite{speid} reported AUROC of $\sim$0.78 on similar data using CNN+LSTM.
+We anticipate that:
+\begin{enumerate}[noitemsep]
+  \item The BiLSTM and Transformer hybrid models (E06, E07) will outperform the
+        pure CNN baseline (E02) by 1--3 AUROC points.
+  \item The LLM-based encoders (E08, E09), particularly HyenaDNA (fine-tuned),
+        will achieve the highest AUROC owing to their pre-training on large
+        genomic corpora.
+  \item The \textsc{Concat+Sub+Mul} fusion will consistently outperform simple
+        concatenation by $\geq 0.5$ AUROC points.
+\end{enumerate}

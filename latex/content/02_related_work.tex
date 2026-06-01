@@ -1,0 +1,61 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Chromatin Interaction Prediction}
+
+Chromatin interactions---most prominently captured by Hi-C~\cite{hic}---reflect the
+three-dimensional folding of the genome and are mediated by architectural proteins
+such as CTCF and cohesin~\cite{ctcf}.
+Early computational approaches to predict these interactions relied on epigenomic
+features: TargetFinder~\cite{targetfinder} combined boosted trees with DNase-seq,
+histone mark ChIP-seq, CAGE, and DNA methylation features, achieving strong
+cell-type-specific prediction.
+These feature-engineering approaches, while effective, require experimental data
+that is expensive to generate and unavailable for most cell types or conditions.
+
+\subsection{Sequence-Based Enhancer--Promoter Prediction}
+
+The first deep learning method to predict EPI from DNA sequence alone was
+SPEID~\cite{speid}, which concatenated one-hot encoded enhancer and promoter
+sequences and processed them through a stack of 1D convolutions followed by LSTM
+layers.  SPEID demonstrated that regulatory grammar embedded in raw sequence
+suffices for competitive EPI prediction across six human cell lines.
+DeepC~\cite{deepc} extended sequence-based chromatin contact prediction to megabase
+scale using dilated convolutions and transfer learning from DNase-seq.
+EPI-Trans~\cite{epitrans} replaced convolutional backbones with a Transformer
+encoder and reported improved AUROC on multiple benchmarks, underscoring the utility
+of self-attention for modelling long-range sequence context.
+
+\subsection{DNA Representation Learning}
+
+DeepSEA~\cite{deepsea} was among the first large-scale applications of CNNs to
+regulatory genomics, learning to predict chromatin accessibility and transcription
+factor binding from 1 kb DNA windows.
+The recent emergence of DNA foundation models trained by masked language modelling
+has substantially raised the bar for sequence representations.
+DNABERT~\cite{dnabert} adapts the BERT architecture~\cite{attention_all_you_need}
+to 6-mer tokenised DNA, yielding representations that transfer effectively to
+promoter prediction, splice-site detection, and transcription factor binding.
+DNABERT-2~\cite{dnabert2} replaces fixed-length $k$-mer tokenisation with
+Byte Pair Encoding (BPE) and scales to multi-species genomes, achieving superior
+efficiency and cross-species generalisation.
+The Nucleotide Transformer~\cite{nucleotide_transformer} trains models up to 2.5B
+parameters on 3,202 human genomes and 850 diverse-species genomes, yielding
+context-specific representations that benefit low-data fine-tuning on regulatory tasks.
+HyenaDNA~\cite{hyenadna} addresses the quadratic attention bottleneck by substituting
+self-attention with Hyena operators (implicit long convolutions), enabling context
+lengths up to one million nucleotides at single-nucleotide resolution---particularly
+relevant for EPI prediction where the interacting elements may span tens of kilobases.
+
+\subsection{Multi-Path Interaction Modelling}
+
+A core design question in dual-sequence models is how to combine the representations
+of the two interacting elements.
+Simple concatenation~\cite{speid} ignores cross-sequence interaction, while element-wise
+subtraction and multiplication have been shown to capture complementary aspects of
+semantic similarity in natural language inference~\cite{attention_all_you_need}.
+Bilinear interaction layers provide the most expressive pairwise model at the cost of
+quadratic parameter growth.
+In the EPI context, the enhancer and promoter representations encode distinct regulatory
+signals; their interaction is likely asymmetric, motivating the combination of multiple
+fusion paths explored in this work.

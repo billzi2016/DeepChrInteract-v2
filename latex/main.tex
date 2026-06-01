@@ -1,0 +1,105 @@
+\documentclass[12pt, a4paper]{article}
+
+% ---------- Packages ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm, headheight=15pt]{geometry}
+\usepackage{amsmath, amssymb, bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage[numbers, sort&compress]{natbib}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{abstract}
+
+% ---------- Hyperref Setup ----------
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = blue!70!black,
+  citecolor  = green!50!black,
+  urlcolor   = blue!70!black,
+}
+
+% ---------- Header / Footer ----------
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small DeepChrInteract-v2}
+\lhead{\small Enhancer--Promoter Interaction Prediction}
+\cfoot{\thepage}
+
+% ---------- Title ----------
+\title{
+  \textbf{DeepChrInteract-v2: A Modern PyTorch Reimplementation of\\
+  Deep Learning Methods for Enhancer--Promoter Interaction Prediction}\\[0.5em]
+  \large\textit{Reproduction, Extension, and Benchmarking with LLM-Based Encoders}
+}
+
+\author{}
+
+\date{May 2026}
+
+% ---------- Document ----------
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\begin{abstract}
+\noindent
+Predicting enhancer--promoter interactions (EPI) from raw DNA sequence is a fundamental task
+in computational genomics, enabling the systematic study of gene regulation without relying
+on expensive chromatin capture experiments.
+We present \textbf{DeepChrInteract-v2}, a complete reimplementation and substantial extension
+of the original DeepChrInteract toolkit~\cite{deepchrinteract_doc}, which was built on deprecated
+Keras 1.x/TensorFlow 2.x APIs and has become non-functional due to breaking library changes.
+The new codebase is built entirely in PyTorch~2.x and introduces four major improvements:
+(i) a direct in-memory one-hot encoding pipeline that eliminates the original
+PNG-based intermediate representation;
+(ii) two new sequence modelling backbones---Bidirectional LSTM (BiLSTM)
+and Transformer encoder---applied to EPI prediction;
+(iii) integration of pre-trained DNA large language model (LLM) encoders,
+including DNABERT~\cite{dnabert}, DNABERT-2~\cite{dnabert2},
+Nucleotide Transformer~\cite{nucleotide_transformer}, and HyenaDNA~\cite{hyenadna},
+as frozen or fine-tuned feature extractors;
+and (iv) a flexible multi-path fusion module that supports concatenation, subtraction,
+element-wise multiplication, and bilinear interaction between enhancer and promoter
+representations.
+A systematic ablation study across eight model configurations evaluates
+the contribution of each component under a unified evaluation protocol
+(AUROC, AUPRC, F1), reproducing and substantially extending results from
+the original work.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ---------- Content ----------
+\input{content/01_introduction}
+\input{content/02_related_work}
+\input{content/03_data_encoding}
+\input{content/04_methods}
+\input{content/05_experiments}
+\input{content/06_conclusion}
+
+% ---------- Bibliography ----------
+\newpage
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}

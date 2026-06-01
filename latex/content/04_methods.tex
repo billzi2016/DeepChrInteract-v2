@@ -1,0 +1,176 @@
+\section{Methods}
+\label{sec:methods}
+
+All models share the same high-level structure: an \emph{encoder} that maps each raw
+sequence to a fixed-length representation, a \emph{fusion} module that combines the
+enhancer and promoter representations into a joint feature vector, and a
+\emph{classification head} that maps the joint vector to a scalar interaction probability.
+\Cref{fig:overview} sketches this architecture.
+
+% ---- Architecture overview figure placeholder ----
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance = 1.2cm and 2.2cm,
+    box/.style    = {rectangle, draw, rounded corners, minimum width=2.8cm,
+                     minimum height=0.9cm, align=center, font=\small},
+    arrow/.style  = {-Latex, thick},
+  ]
+  \node[box, fill=blue!10]  (en_seq)  {Enhancer\\Sequence};
+  \node[box, fill=blue!10,  below=of en_seq] (pr_seq) {Promoter\\Sequence};
+
+  \node[box, fill=orange!20, right=of en_seq] (en_enc) {Encoder\\$f_\theta$};
+  \node[box, fill=orange!20, right=of pr_seq] (pr_enc) {Encoder\\$f_\theta$};
+
+  \node[box, fill=green!20,  right=2.8cm of en_enc, yshift=-0.6cm]
+        (fusion) {Fusion\\Module};
+
+  \node[box, fill=red!15,    right=of fusion]
+        (head)   {Classification\\Head};
+
+  \node[box, fill=gray!15,   right=of head]
+        (out)    {$\hat{y} \in [0,1]$};
+
+  \draw[arrow] (en_seq) -- (en_enc) node[midway, above, font=\scriptsize]{$s_e$};
+  \draw[arrow] (pr_seq) -- (pr_enc) node[midway, above, font=\scriptsize]{$s_p$};
+  \draw[arrow] (en_enc.east) -- ++(0.5,0) |- (fusion.west)
+               node[near end, above, font=\scriptsize]{$\mathbf{h}_e$};
+  \draw[arrow] (pr_enc.east) -- ++(0.5,0) |- (fusion.west)
+               node[near end, below, font=\scriptsize]{$\mathbf{h}_p$};
+  \draw[arrow] (fusion) -- (head) node[midway, above, font=\scriptsize]{$\mathbf{m}$};
+  \draw[arrow] (head)   -- (out);
+\end{tikzpicture}
+\caption{High-level architecture of DeepChrInteract-v2.
+         Weights of the encoder $f_\theta$ may be shared between the enhancer and
+         promoter branches (parameter tying) or independent (dual-branch).}
+\label{fig:overview}
+\end{figure}
+
+\subsection{Encoder Architectures}
+
+\subsubsection{M1 / M2: CNN Baseline (Single- and Dual-Branch)}
+
+The CNN encoder processes one-hot input $\mathbf{X} \in \mathbb{R}^{5 \times L}$
+through two convolutional stages:
+
+\begin{equation}
+  \mathbf{H} = \mathrm{MaxPool} \Bigl(
+    \mathrm{BN}\bigl(\mathrm{ReLU}(\mathrm{Conv1d}_{128})\bigr)
+  \Bigr) \circ
+  \mathrm{MaxPool} \Bigl(
+    \mathrm{BN}\bigl(\mathrm{ReLU}(\mathrm{Conv1d}_{64})\bigr)
+  \Bigr)(\mathbf{X}),
+\end{equation}
+
+where each stage comprises three stacked convolutions with kernel size 24 and stride 4,
+followed by Batch Normalisation~\cite{batch_norm} and max-pooling.
+The output is globally average-pooled and passed through two fully-connected layers
+with Dropout~\cite{dropout}($p=0.5$), yielding $\mathbf{h} \in \mathbb{R}^{512}$.
+
+\textbf{M1 (single-branch)} concatenates the enhancer and promoter sequences
+along the length axis before the encoder.
+\textbf{M2 (dual-branch)} runs two independent encoder copies and fuses the
+resulting vectors $\mathbf{h}_e$ and $\mathbf{h}_p$ via the fusion module.
+M1 is a direct reproduction of \texttt{model\_onehot\_cnn\_one\_branch} from the original codebase;
+M2 reproduces \texttt{model\_onehot\_cnn\_two\_branch}.
+
+\subsubsection{M3: \texorpdfstring{$k$}{k}-mer Embedding + CNN}
+
+The $k$-mer tokenised sequence $\mathbf{t} \in \mathbb{Z}^{L-5}$ is first mapped through
+a trainable embedding table $\mathbf{E} \in \mathbb{R}^{4097 \times 128}$:
+\begin{equation}
+  \hat{\mathbf{X}} = \mathbf{E}[\mathbf{t}] \in \mathbb{R}^{(L-5) \times 128}.
+\end{equation}
+Four stacked Conv1d--ReLU--MaxPool blocks (64 channels, kernel 32, stride 8)
+progressively reduce the sequence length before a flatten and two dense layers.
+This reproduces \texttt{model\_embedding\_cnn\_one/two\_branch}.
+
+\subsubsection{M4: Bidirectional LSTM}
+
+The BiLSTM encoder~\cite{lstm} processes the one-hot (or embedded) sequence
+in both temporal directions:
+\begin{equation}
+  \mathbf{h}_e = \bigl[ \overrightarrow{\mathrm{LSTM}}(\mathbf{X})_{L};\;
+                        \overleftarrow{\mathrm{LSTM}}(\mathbf{X})_{1} \bigr]
+  \in \mathbb{R}^{2d_h},
+\end{equation}
+where $d_h = 256$ is the hidden size per direction and $[\cdot;\cdot]$ denotes
+concatenation.  We stack two BiLSTM layers with inter-layer dropout 0.3.
+The final hidden state is used as the sequence representation.
+
+\subsubsection{M5: Transformer Encoder}
+
+Raw one-hot sequences of length $L = 10{,}001$ are too long for standard
+$O(L^2)$ attention.  We first apply a strided CNN front-end (stride 16)
+to produce a downsampled sequence of $\approx 625$ tokens, then add sinusoidal
+positional encoding and pass through four Transformer encoder layers
+($d_{\mathrm{model}} = 256$, $n_{\mathrm{head}} = 8$,
+$d_{\mathrm{ff}} = 1024$, dropout 0.1)~\cite{attention_all_you_need}.
+A prepended learnable \texttt{[CLS]} token aggregates global context;
+its final representation is used as the sequence vector.
+
+\subsubsection{M6: CNN + BiLSTM Hybrid}
+
+The CNN front-end (stride-reduced to $\approx 500$ tokens) serves as a motif
+detector, and the BiLSTM captures long-range dependencies over the resulting
+feature map.  This hybrid design is motivated by the finding of Singh~et~al.~\cite{speid}
+that sequential models benefit from local feature extraction prior to recurrence.
+
+\subsubsection{M7: CNN + Transformer Hybrid}
+
+Identical to M6 but with the BiLSTM replaced by the Transformer encoder described
+in M5.  The CNN front-end reduces the sequence length to a manageable scale,
+after which self-attention operates without significant memory overhead.
+
+\subsubsection{M8: DNA LLM Encoder (DNABERT / NT / HyenaDNA)}
+
+For each of the four foundation models, we extract a fixed-length representation
+$\mathbf{z} \in \mathbb{R}^{d_{\mathrm{LLM}}}$ as described in \Cref{sec:data}.
+A linear projection $\mathbf{W} \in \mathbb{R}^{512 \times d_{\mathrm{LLM}}}$
+aligns the LLM dimension to the common head input size.
+We experiment with two modes:
+\emph{frozen} (LLM parameters are fixed, only the projection and head are trained)
+and \emph{fine-tuned} (all parameters are updated with a lower learning rate
+of $5 \times 10^{-6}$ for the LLM layers).
+
+\subsection{Fusion Module}
+\label{sec:fusion}
+
+Given enhancer representation $\mathbf{h}_e \in \mathbb{R}^d$ and promoter representation
+$\mathbf{h}_p \in \mathbb{R}^d$, the fusion module computes an interaction vector
+$\mathbf{m}$ according to one of the following strategies:
+
+\begin{table}[H]
+\centering
+\caption{Supported fusion strategies. $d_{\mathrm{out}}$ is the output dimension fed
+         to the classification head.}
+\label{tab:fusion}
+\begin{tabular}{llcc}
+\toprule
+Strategy & Formula & $d_{\mathrm{out}}$ & Learnable params \\
+\midrule
+Concat        & $[\mathbf{h}_e;\mathbf{h}_p]$               & $2d$ & 0 \\
+Add           & $\mathbf{h}_e + \mathbf{h}_p$               & $d$  & 0 \\
+Subtract      & $\mathbf{h}_e - \mathbf{h}_p$               & $d$  & 0 \\
+Multiply      & $\mathbf{h}_e \odot \mathbf{h}_p$           & $d$  & 0 \\
+Bilinear      & $\mathbf{h}_e^\top \mathbf{W}_b \mathbf{h}_p$  & 1    & $d^2$ \\
+Concat+Sub+Mul & $[\mathbf{h}_e;\mathbf{h}_p;\mathbf{h}_e-\mathbf{h}_p;\mathbf{h}_e\odot\mathbf{h}_p]$ & $4d$ & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The \textsc{Concat+Sub+Mul} strategy is our recommended default, as it provides
+a richer feature space at no additional learnable parameters, making it invariant
+to the sign of the enhancer--promoter difference while preserving asymmetry
+information through both the subtract and multiply paths.
+
+\subsection{Classification Head}
+
+All models share a two-layer MLP head:
+\begin{equation}
+  \hat{y} = \sigma\!\Bigl(\mathbf{W}_2\, \mathrm{ReLU}(\mathbf{W}_1 \mathbf{m} + \mathbf{b}_1) + \mathbf{b}_2\Bigr),
+\end{equation}
+where $\mathbf{W}_1 \in \mathbb{R}^{256 \times d_{\mathrm{out}}}$,
+$\mathbf{W}_2 \in \mathbb{R}^{1 \times 256}$, and $\sigma$ is the sigmoid function.
+The model is trained with binary cross-entropy loss and the Adam
+optimiser~\cite{adam} ($\beta_1=0.9$, $\beta_2=0.999$, weight decay $10^{-5}$).

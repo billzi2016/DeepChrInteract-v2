@@ -1,0 +1,46 @@
+# LaTeX auxiliary files
+*.aux
+*.log
+*.bbl
+*.blg
+*.toc
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.nav
+*.snm
+*.vrb
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Data (large binary/text data not tracked)
+data/*/png_train/
+data/*/png_test/
+data/*/train_en/
+data/*/train_pr/
+data/*/test_en/
+data/*/test_pr/
+*.npz
+
+# Model weights
+h5_weights/
+*.h5
+*.pt
+*.pth
+*.ckpt
+
+# Results
+result/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

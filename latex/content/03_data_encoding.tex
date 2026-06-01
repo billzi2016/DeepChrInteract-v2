@@ -1,0 +1,129 @@
+\section{Data Format and Encoding Strategies}
+\label{sec:data}
+
+\subsection{Data Format}
+
+Following the original DeepChrInteract~\cite{deepchrinteract_doc}, we use labelled
+chromatin interaction data derived from Hi-C experiments.
+The dataset for each cell type consists of four plain-text files:
+
+\begin{itemize}[noitemsep]
+  \item \texttt{seq.anchor1.pos.txt} --- enhancer sequences from interacting loci (positive);
+  \item \texttt{seq.anchor2.pos.txt} --- corresponding promoter sequences (positive);
+  \item \texttt{seq.anchor1.neg2.txt} --- enhancer sequences from non-interacting loci (negative);
+  \item \texttt{seq.anchor2.neg2.txt} --- corresponding promoter sequences (negative).
+\end{itemize}
+
+Each line contains one DNA sequence of fixed length $L$ (default $L = 10{,}001$~bp)
+over the alphabet $\{A, C, G, T, N\}$, where $N$ denotes an unresolved nucleotide.
+Positive and negative samples are balanced at dataset construction time following
+standard practice~\cite{speid}.
+The dataset is split into training (80\%), validation (10\%), and test (10\%) sets
+by stratified random sampling with a fixed seed.
+
+\subsection{Encoding Strategy A: One-Hot}
+
+One-hot encoding represents each nucleotide as a binary indicator vector of
+dimension five (including $N$):
+\begin{equation}
+  \phi_{\mathrm{oh}}(c) =
+  \begin{cases}
+    \mathbf{e}_1 & c = A \\
+    \mathbf{e}_2 & c = C \\
+    \mathbf{e}_3 & c = G \\
+    \mathbf{e}_4 & c = T \\
+    \mathbf{e}_5 & c = N
+  \end{cases}
+  \in \{0,1\}^5,
+\end{equation}
+where $\mathbf{e}_k$ is the $k$-th standard basis vector.
+A sequence of length $L$ is encoded as a matrix $\mathbf{X} \in \{0,1\}^{5 \times L}$,
+which is treated as a 5-channel 1D signal and processed by 1D convolution layers.
+The encoding is computed on-the-fly from the raw text files via a vectorised
+NumPy kernel during data loading, with no disk-cached intermediate representation.
+
+\paragraph{Design note.}
+The original implementation converted one-hot matrices to $[0,1]$ float PNG images
+(via \texttt{imageio}) and then read them back with Keras's \texttt{ImageDataGenerator}.
+This incurred two conversion round-trips (float $\to$ uint8 $\to$ float), introduced
+8-bit quantisation error, generated tens of gigabytes of temporary files, and created
+a tight coupling between the data pipeline and the image loading subsystem.
+DeepChrInteract-v2 eliminates this entirely: one-hot tensors are constructed in
+\texttt{\_\_getitem\_\_} and never written to disk.
+
+\subsection{Encoding Strategy B: \texorpdfstring{$k$}{k}-mer Tokenisation}
+
+To capture local sequence context beyond individual nucleotides, we tile a sliding window
+of width $k=6$ over each sequence, yielding $L - k + 1$ overlapping $k$-mers.
+Since there are $4^6 = 4{,}096$ valid $k$-mers over $\{A,C,G,T\}$, plus a special
+\texttt{null} token for windows containing $N$, the vocabulary size is 4,097.
+Each $k$-mer is mapped to an integer index, and the integer sequence is fed to a
+trainable \texttt{nn.Embedding} layer of output dimension $d_e = 128$.
+This replicates the original tokenisation scheme, extended with the DNA2Vec
+pre-trained weight matrix~\cite{deepchrinteract_doc} as an optional initialisation.
+
+\subsection{Encoding Strategy C: Pre-Trained DNA LLM}
+
+Pre-trained DNA foundation models provide contextualised nucleotide representations
+that encode co-evolutionary constraints and regulatory signals learned from
+large genomic corpora.
+We integrate four models as optional encoders:
+
+\begin{description}[noitemsep]
+  \item[DNABERT~\cite{dnabert}]
+    A 12-layer BERT model pre-trained on the human reference genome
+    with 6-mer tokenisation. We use the publicly available weights from
+    \texttt{DNABERT-6} and either freeze all parameters (as a fixed feature extractor)
+    or fine-tune the top $K$ transformer layers together with the EPI classification head.
+
+  \item[DNABERT-2~\cite{dnabert2}]
+    An improved foundation model using BPE tokenisation and a Flash-Attention backbone,
+    trained on 135 species. BPE naturally handles the variable-length motif structure
+    of regulatory sequences and reduces sequence length relative to $k$-mer tokenisation.
+
+  \item[Nucleotide Transformer~\cite{nucleotide_transformer}]
+    A family of models (50M--2.5B parameters) pre-trained on 3,202 human genomes.
+    We adopt the 500M multi-species variant for its balance of capacity and GPU memory
+    footprint.
+
+  \item[HyenaDNA~\cite{hyenadna}]
+    A sub-quadratic architecture based on Hyena operators that processes up to
+    $1 \times 10^6$ tokens at single-nucleotide resolution.
+    Given the sequence length of $L = 10{,}001$~bp per region in our dataset,
+    HyenaDNA can encode the full window without downsampling, making it the
+    most natural fit for our task.
+\end{description}
+
+For all LLM encoders, the full sequence is passed through the model and the
+\texttt{[CLS]} token representation (or the mean of all token representations
+for models without a \texttt{[CLS]} token) is used as the fixed-length
+representation $\mathbf{z} \in \mathbb{R}^{d}$.
+This vector is subsequently passed to the fusion and classification modules
+described in \Cref{sec:methods}.
+
+\subsection{Data Pipeline Implementation}
+
+\Cref{alg:dataset} summarises the data loading pipeline.
+All encoding strategies share a common \texttt{EPIDataset} interface that returns
+a tuple $(\mathbf{x}_e, \mathbf{x}_p, y)$ of enhancer encoding, promoter encoding,
+and binary label, compatible with the standard PyTorch \texttt{DataLoader}.
+
+\begin{algorithm}[H]
+\caption{EPIDataset \texttt{\_\_getitem\_\_}}\label{alg:dataset}
+\begin{algorithmic}[1]
+\Require Index $i$, encoding mode $m \in \{\text{onehot}, \text{kmer}, \text{llm}\}$
+\State Read raw sequences: $s_e \leftarrow \texttt{enhancer}[i]$,
+       $s_p \leftarrow \texttt{promoter}[i]$, label $y \leftarrow \texttt{label}[i]$
+\If{$m = \text{onehot}$}
+  \State $\mathbf{x}_e \leftarrow \phi_{\mathrm{oh}}(s_e) \in \mathbb{R}^{5 \times L}$
+  \State $\mathbf{x}_p \leftarrow \phi_{\mathrm{oh}}(s_p) \in \mathbb{R}^{5 \times L}$
+\ElsIf{$m = \text{kmer}$}
+  \State $\mathbf{x}_e \leftarrow \texttt{tokenize}(s_e) \in \mathbb{Z}^{L-5}$
+  \State $\mathbf{x}_p \leftarrow \texttt{tokenize}(s_p) \in \mathbb{Z}^{L-5}$
+\ElsIf{$m = \text{llm}$}
+  \State $\mathbf{x}_e \leftarrow \texttt{LLM.encode}(s_e) \in \mathbb{R}^{d}$ \quad\textit{(pre-computed)}
+  \State $\mathbf{x}_p \leftarrow \texttt{LLM.encode}(s_p) \in \mathbb{R}^{d}$
+\EndIf
+\State \Return $(\mathbf{x}_e,\; \mathbf{x}_p,\; y)$
+\end{algorithmic}
+\end{algorithm}

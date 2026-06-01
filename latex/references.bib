@@ -1,0 +1,197 @@
+% ============================================================
+%  DeepChrInteract-v2 — Bibliography
+% ============================================================
+
+% ---- Original DeepChrInteract (our own prior work) ----
+@misc{deepchrinteract_doc,
+  author       = {Bi, Ziqian and Chen, Li},
+  title        = {{DeepChrInteract}: Deep Learning for Predicting Chromatin Interactions},
+  howpublished = {GitHub, \url{https://github.com/lichen-lab/DeepChrInteract}},
+  year         = {2021},
+}
+
+% ---- EPI Prediction Methods ----
+@article{speid,
+  author    = {Singh, Shashank and Yang, Yun and P{\'o}czos, Barnab{\'a}s and Ma, Jian},
+  title     = {Predicting enhancer--promoter interaction from genomic sequence with deep neural networks},
+  journal   = {Quantitative Biology},
+  volume    = {7},
+  number    = {2},
+  pages     = {122--137},
+  year      = {2019},
+  doi       = {10.1007/s40484-019-0154-0},
+}
+
+@article{targetfinder,
+  author    = {Whalen, Sean and Truty, Rebecca M. and Pollard, Katherine S.},
+  title     = {Enhancer--promoter interactions are encoded by complex genomic signatures on looping chromatin},
+  journal   = {Nature Genetics},
+  volume    = {48},
+  number    = {5},
+  pages     = {488--496},
+  year      = {2016},
+  doi       = {10.1038/ng.3539},
+}
+
+@article{epitrans,
+  author    = {Li, Guofeng and others},
+  title     = {{EPI-Trans}: an effective transformer-based deep learning model for enhancer--promoter interaction prediction},
+  journal   = {BMC Bioinformatics},
+  volume    = {25},
+  number    = {1},
+  pages     = {209},
+  year      = {2024},
+  doi       = {10.1186/s12859-024-05822-6},
+}
+
+% ---- DNA / Chromatin Deep Learning ----
+@article{deepsea,
+  author    = {Zhou, Jian and Troyanskaya, Olga G.},
+  title     = {Predicting effects of noncoding variants with deep learning--based sequence model},
+  journal   = {Nature Methods},
+  volume    = {12},
+  number    = {10},
+  pages     = {931--934},
+  year      = {2015},
+  doi       = {10.1038/nmeth.3547},
+}
+
+@article{deepc,
+  author    = {Schwessinger, Ron and others},
+  title     = {{DeepC}: predicting chromatin interactions using megabase scaled deep neural networks and transfer learning},
+  journal   = {Nature Methods},
+  volume    = {17},
+  number    = {11},
+  pages     = {1118--1124},
+  year      = {2020},
+  doi       = {10.1038/s41592-020-0960-3},
+}
+
+% ---- DNA LLM Encoders ----
+@article{dnabert,
+  author    = {Ji, Yanrong and Zhou, Zhihan and Liu, Han and Davuluri, Ramana V.},
+  title     = {{DNABERT}: pre-trained Bidirectional Encoder Representations from Transformers model for {DNA}-language in genome},
+  journal   = {Bioinformatics},
+  volume    = {37},
+  number    = {15},
+  pages     = {2112--2120},
+  year      = {2021},
+  doi       = {10.1093/bioinformatics/btab083},
+}
+
+@inproceedings{dnabert2,
+  author    = {Zhou, Zhihan and Ji, Yanrong and Li, Weijian and Dutta, Pratik and Davuluri, Ramana and Liu, Han},
+  title     = {{DNABERT-2}: Efficient Foundation Model and Benchmark For Multi-Species Genomes},
+  booktitle = {The Twelfth International Conference on Learning Representations (ICLR)},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2306.15006},
+}
+
+@article{nucleotide_transformer,
+  author    = {Dalla-Torre, Hugo and others},
+  title     = {Nucleotide Transformer: building and evaluating robust foundation models for human genomics},
+  journal   = {Nature Methods},
+  volume    = {21},
+  pages     = {1--11},
+  year      = {2024},
+  doi       = {10.1038/s41592-024-02523-z},
+}
+
+@inproceedings{hyenadna,
+  author    = {Nguyen, Eric and Poli, Michael and Faizi, Marjan and Thomas, Armin and Wornow, Michael and Birch-Sykes, Callum and Massaroli, Stefano and Patel, Aman and Rabideau, Clayton and Bengio, Yoshua and Ermon, Stefano and R{\'e}, Christopher and Baccus, Stephen},
+  title     = {{HyenaDNA}: Long-Range Genomic Sequence Modeling at Single Nucleotide Resolution},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  year      = {2023},
+  url       = {https://arxiv.org/abs/2306.15794},
+}
+
+% ---- Architecture Foundations ----
+@inproceedings{attention_all_you_need,
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, {\L}ukasz and Polosukhin, Illia},
+  title     = {Attention Is All You Need},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {30},
+  year      = {2017},
+}
+
+@article{lstm,
+  author    = {Hochreiter, Sepp and Schmidhuber, J{\"u}rgen},
+  title     = {Long Short-Term Memory},
+  journal   = {Neural Computation},
+  volume    = {9},
+  number    = {8},
+  pages     = {1735--1780},
+  year      = {1997},
+  doi       = {10.1162/neco.1997.9.8.1735},
+}
+
+@inproceedings{resnet,
+  author    = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+  title     = {Deep Residual Learning for Image Recognition},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {770--778},
+  year      = {2016},
+  doi       = {10.1109/CVPR.2016.90},
+}
+
+% ---- Hi-C / Genomics Background ----
+@article{hic,
+  author    = {Lieberman-Aiden, Erez and others},
+  title     = {Comprehensive Mapping of Long-Range Interactions Reveals Folding Principles of the Human Genome},
+  journal   = {Science},
+  volume    = {326},
+  number    = {5950},
+  pages     = {289--293},
+  year      = {2009},
+  doi       = {10.1126/science.1181369},
+}
+
+@article{encode,
+  author    = {{ENCODE Project Consortium}},
+  title     = {An integrated encyclopedia of {DNA} elements in the human genome},
+  journal   = {Nature},
+  volume    = {489},
+  number    = {7414},
+  pages     = {57--74},
+  year      = {2012},
+  doi       = {10.1038/nature11247},
+}
+
+@article{ctcf,
+  author    = {Ong, Chin-Tong and Corces, Victor G.},
+  title     = {{CTCF}: an architectural protein bridging genome topology and function},
+  journal   = {Nature Reviews Genetics},
+  volume    = {15},
+  number    = {4},
+  pages     = {234--246},
+  year      = {2014},
+  doi       = {10.1038/nrg3663},
+}
+
+% ---- Evaluation / ML ----
+@article{adam,
+  author    = {Kingma, Diederik P. and Ba, Jimmy},
+  title     = {Adam: A Method for Stochastic Optimization},
+  journal   = {arXiv preprint arXiv:1412.6980},
+  year      = {2015},
+  url       = {https://arxiv.org/abs/1412.6980},
+}
+
+@article{batch_norm,
+  author    = {Ioffe, Sergey and Szegedy, Christian},
+  title     = {Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift},
+  journal   = {Proceedings of the 32nd International Conference on Machine Learning (ICML)},
+  pages     = {448--456},
+  year      = {2015},
+}
+
+@article{dropout,
+  author    = {Srivastava, Nitish and Hinton, Geoffrey and Krizhevsky, Alex and Sutskever, Ilya and Salakhutdinov, Ruslan},
+  title     = {Dropout: A Simple Way to Prevent Neural Networks from Overfitting},
+  journal   = {Journal of Machine Learning Research},
+  volume    = {15},
+  number    = {1},
+  pages     = {1929--1958},
+  year      = {2014},
+}

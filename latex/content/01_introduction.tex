@@ -43,7 +43,8 @@ that prevent reproduction:
 \begin{itemize}[noitemsep]
   \item Dependency on \texttt{Keras~2.4.0} / \texttt{TensorFlow~2.3.0}, both of
         which have undergone breaking API changes (deprecated \texttt{fit\_generator},
-        removed \texttt{keras.preprocessing.image.ImageDataGenerator} arguments, etc.).
+        removed \texttt{keras.preprocessing}\discretionary{}{}{}\texttt{.image.ImageDataGenerator}
+        arguments, etc.).
   \item An unconventional preprocessing pipeline that serialises one-hot encoded
         sequences as PNG images on disk before feeding them to an
         \texttt{ImageDataGenerator}---an approach that incurs unnecessary I/O

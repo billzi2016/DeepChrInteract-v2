@@ -7,13 +7,14 @@ enhancer and promoter representations into a joint feature vector, and a
 \emph{classification head} that maps the joint vector to a scalar interaction probability.
 \Cref{fig:overview} sketches this architecture.
 
-% ---- Architecture overview figure placeholder ----
+% ---- Architecture overview figure ----
 \begin{figure}[H]
 \centering
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
-    node distance = 1.2cm and 2.2cm,
-    box/.style    = {rectangle, draw, rounded corners, minimum width=2.8cm,
-                     minimum height=0.9cm, align=center, font=\small},
+    node distance = 0.9cm and 1.5cm,
+    box/.style    = {rectangle, draw, rounded corners, minimum width=2.2cm,
+                     minimum height=0.8cm, align=center, font=\small},
     arrow/.style  = {-Latex, thick},
   ]
   \node[box, fill=blue!10]  (en_seq)  {Enhancer\\Sequence};
@@ -22,24 +23,24 @@ enhancer and promoter representations into a joint feature vector, and a
   \node[box, fill=orange!20, right=of en_seq] (en_enc) {Encoder\\$f_\theta$};
   \node[box, fill=orange!20, right=of pr_seq] (pr_enc) {Encoder\\$f_\theta$};
 
-  \node[box, fill=green!20,  right=2.8cm of en_enc, yshift=-0.6cm]
+  \node[box, fill=green!20,  right=2.0cm of en_enc, yshift=-0.45cm]
         (fusion) {Fusion\\Module};
 
   \node[box, fill=red!15,    right=of fusion]
-        (head)   {Classification\\Head};
+        (head)   {Classif.\\Head};
 
   \node[box, fill=gray!15,   right=of head]
-        (out)    {$\hat{y} \in [0,1]$};
+        (out)    {$\hat{y}$};
 
   \draw[arrow] (en_seq) -- (en_enc) node[midway, above, font=\scriptsize]{$s_e$};
   \draw[arrow] (pr_seq) -- (pr_enc) node[midway, above, font=\scriptsize]{$s_p$};
-  \draw[arrow] (en_enc.east) -- ++(0.5,0) |- (fusion.west)
+  \draw[arrow] (en_enc.east) -- ++(0.4,0) |- (fusion.west)
                node[near end, above, font=\scriptsize]{$\mathbf{h}_e$};
-  \draw[arrow] (pr_enc.east) -- ++(0.5,0) |- (fusion.west)
+  \draw[arrow] (pr_enc.east) -- ++(0.4,0) |- (fusion.west)
                node[near end, below, font=\scriptsize]{$\mathbf{h}_p$};
   \draw[arrow] (fusion) -- (head) node[midway, above, font=\scriptsize]{$\mathbf{m}$};
   \draw[arrow] (head)   -- (out);
-\end{tikzpicture}
+\end{tikzpicture}}%
 \caption{High-level architecture of DeepChrInteract-v2.
          Weights of the encoder $f_\theta$ may be shared between the enhancer and
          promoter branches (parameter tying) or independent (dual-branch).}

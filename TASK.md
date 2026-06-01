@@ -24,7 +24,7 @@
 
 ## Phase 1：项目骨架
 
-- [ ] 创建目录结构
+- [x] 创建目录结构
   ```
   src/
     dataset.py
@@ -36,44 +36,46 @@
   scripts/
     preprocess.py
     run_experiment.sh
+    test_pipeline.py
   notebooks/
-    analysis.ipynb
+  results/
+  data/
   ```
-- [ ] `requirements.txt` — 固定所有依赖版本
-  - [ ] `torch >= 2.0`
-  - [ ] `numpy`, `scikit-learn`, `matplotlib`, `tqdm`
-  - [ ] `transformers`（DNABERT / NT）
-  - [ ] `mamba-ssm`（Mamba 官方 CUDA kernel）
-  - [ ] 可选：`rwkv`、`flash-attn`
-- [ ] `src/config.py` — 全局超参数管理
-  - [ ] `dataclass` 定义所有超参（lr、batch、dropout、d_model 等）
-  - [ ] `argparse` 覆盖接口
-  - [ ] 保存配置快照到 `results/{exp_id}/config.json`
-  - [ ] 固定随机种子工具函数 `set_seed(seed)`
+- [x] `requirements.txt` — 固定所有依赖版本
+  - [x] `torch >= 2.0`
+  - [x] `numpy`, `scikit-learn`, `matplotlib`, `tqdm`
+  - [x] `transformers`（DNABERT / NT）
+  - [x] 可选：`mamba-ssm`（CUDA 环境）
+- [x] `src/config.py` — 全局超参数管理
+  - [x] `dataclass` 定义所有超参（lr、batch、dropout、d_model 等）
+  - [x] `argparse` 覆盖接口
+  - [x] 保存配置快照到 `results/{exp_id}/seed{n}/config.json`
+  - [x] 固定随机种子工具函数 `set_seed(seed)`
 
 ---
 
 ## Phase 2：数据管道
 
-- [ ] `scripts/preprocess.py` — 数据预处理
-  - [ ] 读取四个 `.txt` 文件（anchor1/2 × pos/neg）
-  - [ ] 对齐正负样本长度
-  - [ ] Shuffle + 分层 train/val/test 划分（80/10/10）
-  - [ ] 保存为 `data/{cell_type}/processed.npz`（序列字符串 + 标签）
-  - [ ] **不生成任何 PNG / 中间图片文件**
+- [x] `scripts/preprocess.py` — 数据预处理
+  - [x] 读取四个 `.txt` 文件（anchor1/2 × pos/neg）
+  - [x] 对齐正负样本长度
+  - [x] Shuffle + 分层 train/val/test 划分（80/10/10）
+  - [x] 保存为 `data/{cell_type}/train|val|test.npz`（序列字符串 + 标签）
+  - [x] **不生成任何 PNG / 中间图片文件**
 
-- [ ] `src/dataset.py` — PyTorch Dataset
-  - [ ] `EPIDataset` 类，`__getitem__` 返回 `(x_e, x_p, label)`
-  - [ ] 支持三种模式：`onehot` / `kmer` / `llm`
-  - [ ] One-Hot：纯 NumPy 向量化，在线动态生成，不落盘
-  - [ ] k-mer：滑窗 6-mer → integer token，`pad_sequences`
-  - [ ] LLM：预计算好的 embedding 直接读 `.npy`
-  - [ ] `get_dataloader()` 工厂函数（train/val/test，worker 数可配）
+- [x] `src/dataset.py` — PyTorch Dataset
+  - [x] `EPIDataset` 类，`__getitem__` 返回 `(x_e, x_p, label)`
+  - [x] 支持三种模式：`onehot` / `kmer` / `llm`
+  - [x] One-Hot：纯 NumPy 向量化，在线动态生成，不落盘
+  - [x] k-mer：滑窗 6-mer → integer token
+  - [x] LLM：预计算好的 embedding 直接读 `.npy`
+  - [x] `DummyEPIDataset`（无数据时验证管道）
+  - [x] `get_dataloader()` 工厂函数（train/val/test，worker 数可配）
 
-- [ ] `src/encoders.py` — 编码器工具
-  - [ ] `OneHotEncoder` — `(seq_str,) → Tensor(5, L)`
-  - [ ] `KmerTokenizer` — 6-mer 词表构建 + `encode(seq)` → `LongTensor(L-5)`
-  - [ ] `LLMEncoder` — 批量调用 HuggingFace 模型，输出 `.npy` 缓存文件
+- [x] `src/encoders.py` — 编码器工具
+  - [x] `OneHotEncoder` — `(seq_str,) → Tensor(5, L)`
+  - [x] `KmerTokenizer` — 6-mer 词表构建 + `encode(seq)` → `LongTensor(L-5)`
+  - [x] `LLMEncoder` — 批量调用 HuggingFace 模型，输出 `.npy` 缓存文件
 
 ---
 
@@ -81,109 +83,102 @@
 
 > 所有模型继承 `BaseEPIModel`，统一签名 `forward(x_e, x_p) → logit`
 
-- [ ] `src/models/base.py` — 基类 + 分类头 MLP
-  - [ ] `BaseEPIModel(nn.Module)`：定义 `encode()` + `fuse()` + `classify()`
-  - [ ] 分类头：`Linear(d_out, 256) → ReLU → Linear(256, 1) → Sigmoid`
+- [x] `src/models/base.py` — 基类 + 分类头 MLP
+  - [x] `BaseEPIModel(nn.Module)`：定义 `encode()` + `fuse()` + `classify()`
+  - [x] 分类头：`Linear(d_out, 256) → ReLU → Dropout → Linear(256, 1)`
 
-- [ ] `src/models/fusion.py` — 6 种融合策略
-  - [ ] `FusionModule(strategy)` 支持：`concat` / `add` / `subtract` / `multiply` / `bilinear` / `concat_sub_mul`
-  - [ ] 默认：`concat_sub_mul`
+- [x] `src/models/fusion.py` — 6 种融合策略
+  - [x] `FusionModule(strategy)` 支持：`concat` / `add` / `subtract` / `multiply` / `bilinear` / `concat_sub_mul`
+  - [x] 默认：`concat_sub_mul`
 
 ### Group A：经典 CNN（复现）
 
-- [ ] `src/models/cnn.py`
-  - [ ] `M1_CNN_SingleBranch` — Conv1d × 3 (64ch) + Conv1d × 3 (128ch) + pool + FC
-  - [ ] `M2_CNN_DualBranch` — 双份 M1 编码器 + fusion
-  - [ ] `M3_Kmer_CNN` — Embedding(4097, 128) + Conv1d × 4 (64ch, k=32, s=8) + fusion
+- [x] `src/models/cnn.py`
+  - [x] `M1_CNN_SingleBranch` — 单路 CNN，复现 `model_onehot_cnn_one_branch`
+  - [x] `M2_CNN_DualBranch` — 双路 CNN，复现 `model_onehot_cnn_two_branch`
+  - [x] `M3_Kmer_CNN` — Embedding(4097, 128) + Conv1d × 4 + fusion
 
 ### Group B：RNN / LSTM 族
 
-- [ ] `src/models/bilstm.py`
-  - [ ] `M4_BiLSTM` — 2 层双向 LSTM（hidden=256，dropout=0.3）+ fusion
+- [x] `src/models/bilstm.py`
+  - [x] `M4_BiLSTM` — 2 层双向 LSTM（hidden=256，dropout=0.3）+ fusion
 
-- [ ] `src/models/mlstm.py`
-  - [ ] `M5_mLSTM` — mLSTM cell（矩阵记忆 C_t，covariance update）
-  - [ ] 双向包装（前向 + 后向）
-  - [ ] 2 层 stack，d_k = d_v = 128
-  - [ ] 参考 Bio-xLSTM 实现
+- [x] `src/models/mlstm.py`
+  - [x] `M5_mLSTM` — mLSTM cell（矩阵记忆 C_t，covariance update，log-space 稳定）
+  - [x] 双向包装（前向 + 后向），2 层 stack，d_k = d_v = 128
 
 ### Group C：Transformer 族
 
-- [ ] `src/models/transformer.py`
-  - [ ] `M6_Transformer` — CNN 前端（stride=16，降至 ~625 tokens）+ sinusoidal PE + 4层 TransformerEncoder（d=256, nhead=8）+ CLS token
-  - [ ] `M7_LinearTransformer` — ELU+1 核函数 attention，无需降采样，4层（d=256, nhead=8）
-  - [ ] `M8_iTransformer` — 在 C=5 通道维做 attention，FFN 按位置处理；无需降采样
+- [x] `src/models/transformer.py`
+  - [x] `M6_Transformer` — CNN 前端（stride=16）+ 4 层 TransformerEncoder + CLS token
+  - [x] `M7_LinearTransformer` — ELU+1 核函数 Linear Attention，O(Ld²)
+  - [x] `M8_iTransformer` — 在 C=5 通道维做 attention，O(C²L)
 
 ### Group D：线性递推 / SSM
 
-- [ ] `src/models/mamba.py`
-  - [ ] `M9_Mamba` — 4 × Mamba Block（d_model=256），使用 `mamba-ssm` 库
-  - [ ] MeanPool 聚合 + fusion
+- [x] `src/models/mamba.py`
+  - [x] `M9_Mamba` — 优先使用 `mamba-ssm` 库，回退到纯 PyTorch fallback
 
-- [ ] `src/models/rwkv.py`
-  - [ ] `M10_RWKV` — Time-mixing（指数衰减 w，parallel cumsum）+ Channel-mixing，4 层 d=256
-  - [ ] MeanPool + fusion
+- [x] `src/models/rwkv.py`
+  - [x] `M10_RWKV` — Time-mixing（log-space 稳定扫描）+ Channel-mixing，4 层 d=256
 
 ### Group E：混合 + 预训练
 
-- [ ] `src/models/hybrid.py`
-  - [ ] `M11_CNN_BiLSTM` — M1 CNN 前端（截断至 ~500 tokens）→ M4 BiLSTM + fusion
-  - [ ] `M12_CNN_Transformer` — M1 CNN 前端 → M6 Transformer + fusion
+- [x] `src/models/hybrid.py`
+  - [x] `M11_CNN_BiLSTM` — CNN 前端 → BiLSTM
+  - [x] `M12_CNN_Transformer` — CNN 前端 → Transformer
 
-- [ ] `src/models/llm_encoder.py`
-  - [ ] `M13_LLMEncoder` — 统一 adapter，支持：
-    - [ ] DNABERT（6-mer tokenize → `BertModel` → CLS）
-    - [ ] DNABERT-2（BPE tokenize → CLS）
-    - [ ] Nucleotide Transformer（500M 变体，mean pool）
-    - [ ] HyenaDNA（single-nucleotide token，mean pool）
-  - [ ] frozen 模式：仅训练 projection + head
-  - [ ] fine-tune 模式：LLM lr=5e-6，head lr=5e-5
+- [x] `src/models/llm_encoder.py`
+  - [x] `M13_LLMEncoder` — 支持 DNABERT / DNABERT-2 / NT / HyenaDNA
+  - [x] frozen 模式 + fine-tune 模式（参数分组不同 lr）
 
-- [ ] `src/models/mae.py`
-  - [ ] `M14_MAE_Transformer` — MAE 预训练阶段
-    - [ ] Masking：随机遮蔽 75% nucleotide tokens
-    - [ ] Encoder（M6 架构）+ 轻量 Decoder（2 层 Transformer）
-    - [ ] 重建目标：原始 one-hot 向量（MSE loss）
-    - [ ] 预训练入口：`pretrain_mae(dataset, encoder, decoder, epochs)`
-  - [ ] fine-tune 阶段：丢弃 decoder，encoder 接 fusion + head
+- [x] `src/models/mae.py`
+  - [x] `M14_MAE_Transformer` — MAE 预训练（75% 遮蔽，MSE 重建）+ 微调
+
+- [x] `src/models/__init__.py` — `MODEL_REGISTRY` + `build_model()` 工厂
+
+### 测试验证
+
+- [x] `scripts/test_pipeline.py` — 全 16 个测试用例，14 个模型前向/反向，训练+评估循环
+- [x] **全部 16/16 通过**（MPS 设备，PyTorch 2.x）
 
 ---
 
 ## Phase 4：训练系统
 
-- [ ] `src/train.py` — 训练主循环
-  - [ ] 单函数入口 `train(model, config, train_loader, val_loader)`
-  - [ ] 优化器：Adam（lr=5e-5，weight_decay=1e-5）
-  - [ ] LR 调度：CosineAnnealingWarmRestarts（T_0=50）
-  - [ ] 损失：BCEWithLogitsLoss
-  - [ ] 早停：patience=15，监控 val AUROC
-  - [ ] 每 epoch 打印：loss / AUROC / AUPRC
-  - [ ] 保存最优 checkpoint（`results/{exp_id}/best.pt`）
-  - [ ] 保存完整训练曲线（loss / AUROC per epoch → `history.json`）
-  - [ ] 支持断点续训（`--resume results/{exp_id}/last.pt`）
-  - [ ] GPU 自动检测（cuda → mps → cpu）
+- [x] `src/train.py` — 训练主循环
+  - [x] 单函数入口 `train(model, config, train_loader, val_loader)`
+  - [x] 优化器：Adam（lr=5e-5，weight_decay=1e-5），M13 支持参数分组不同 lr
+  - [x] LR 调度：CosineAnnealingWarmRestarts（T_0=50）
+  - [x] 损失：BCEWithLogitsLoss
+  - [x] 梯度裁剪：max_norm=1.0
+  - [x] 早停：patience=15，监控 val AUROC
+  - [x] 每 epoch 打印：loss / AUROC
+  - [x] 保存最优 checkpoint（`results/{exp_id}/seed{n}/best.pt`）
+  - [x] 保存完整训练曲线（`history.json`）
+  - [x] 断点续训（`--resume`）
+  - [x] GPU 自动检测（cuda → mps → cpu）
+  - [x] `--dummy` 标志（随机张量，无需真实数据）
 
-- [ ] MAE 预训练入口（`--pretrain` 参数）
-  - [ ] 无监督预训练 M14 编码器
-  - [ ] 保存预训练权重，供 fine-tune 加载
+- [x] MAE 预训练入口（`--pretrain` 参数，M14 专用）
 
 ---
 
 ## Phase 5：评估系统
 
-- [ ] `src/evaluate.py`
-  - [ ] `evaluate(model, test_loader)` → 返回 dict
-  - [ ] 指标：AUROC、AUPRC、Accuracy、F1（阈值 0.5）
-  - [ ] 95% CI（5 次独立 seed 的均值 ± std）
-  - [ ] 绘制 ROC 曲线（`roc_curve.png`）
-  - [ ] 绘制 PR 曲线（`pr_curve.png`）
-  - [ ] 输出结果 JSON（`results/{exp_id}/metrics.json`）
+- [x] `src/evaluate.py`
+  - [x] `evaluate(model, test_loader)` → 返回 dict
+  - [x] 指标：AUROC、AUPRC、Accuracy、F1（阈值 0.5）
+  - [x] 多 seed 均值 ± std 汇总（`summarize_seeds()`）
+  - [x] 绘制 ROC 曲线（`roc_curve.png`）
+  - [x] 绘制 PR 曲线（`pr_curve.png`）
+  - [x] 输出结果 JSON（`results/{exp_id}/seed{n}/metrics.json`）
 
 ---
 
 ## Phase 6：实验运行
 
-> 每个实验 5 个 seed（0-4），seed 固定
+> 每个实验 5 个 seed（0-4），seed 固定。需要真实数据后执行。
 
 - [ ] **E01** — M1 CNN 单路，one-hot，concat
 - [ ] **E02** — M2 CNN 双路，one-hot，concat

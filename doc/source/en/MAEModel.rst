@@ -1,0 +1,54 @@
+MAE Pretraining Model
+=====================
+
+Switch language: :doc:`../zh/MAEModel`
+
+``M14`` is the self-supervised pretraining route of the repository.
+
+Core idea
++++++++++
+
+The model uses a Masked Autoencoder style workflow:
+
+1. mask a large fraction of sequence patches;
+2. encode the visible subset;
+3. reconstruct the masked content;
+4. reuse the learned encoder for supervised EPI prediction.
+
+Why this is different from M13
++++++++++++++++++++++++++++++++
+
+``M13`` imports external pretrained genomic knowledge.
+``M14`` learns a task-adjacent representation directly from the project's own
+data distribution through self-supervision.
+
+Why this matters
+++++++++++++++++
+
+For regulatory genomics, labels are valuable and often limited. A self-supervised
+route is attractive because it can:
+
+- extract structure from unlabeled or weakly labeled sequence data;
+- adapt the representation to the local data distribution;
+- provide a middle path between scratch training and large external foundation
+  models.
+
+Implementation logic
+++++++++++++++++++++
+
+- Encoder: Transformer-style sequence encoder
+- Pretraining objective: masked reconstruction
+- Finetuning objective: paired enhancer-promoter classification
+
+Project role
+++++++++++++
+
+This model gives the documentation a full representation-learning ladder:
+
+- scratch baselines;
+- advanced sequence architectures;
+- external foundation models;
+- in-project self-supervised pretraining.
+
+.. image:: ../img/div.png
+

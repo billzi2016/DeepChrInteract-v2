@@ -34,6 +34,64 @@ English：
 
 ![Documentation Chinese](assets/docs/docs-zh.png)
 
+### 模型文档页面总览
+
+模型总览：
+
+![Model Overview](assets/docs/models/model-overview.png)
+
+CNN 模型：
+
+![CNN Models](assets/docs/models/cnn-models.png)
+
+ResNet 模型：
+
+![ResNet Models](assets/docs/models/resnet-models.png)
+
+BiLSTM 模型：
+
+![BiLSTM Model](assets/docs/models/bilstm-model.png)
+
+mLSTM 模型：
+
+![mLSTM Model](assets/docs/models/mlstm-model.png)
+
+Transformer 模型：
+
+![Transformer Model](assets/docs/models/transformer-model.png)
+
+Linear Transformer 模型：
+
+![Linear Transformer Model](assets/docs/models/linear-transformer-model.png)
+
+iTransformer 模型：
+
+![iTransformer Model](assets/docs/models/itransformer-model.png)
+
+Mamba 模型：
+
+![Mamba Model](assets/docs/models/mamba-model.png)
+
+RWKV 模型：
+
+![RWKV Model](assets/docs/models/rwkv-model.png)
+
+混合模型：
+
+![Hybrid Models](assets/docs/models/hybrid-models.png)
+
+DNA 基础模型：
+
+![DNA Foundation Models](assets/docs/models/dna-foundation-models.png)
+
+MAE 预训练模型：
+
+![MAE Model](assets/docs/models/mae-model.png)
+
+融合策略：
+
+![Fusion Strategies](assets/docs/models/fusion-strategies.png)
+
 ## 目录结构
 
 ```text

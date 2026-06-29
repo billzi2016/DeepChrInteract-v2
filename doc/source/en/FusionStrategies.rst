@@ -1,0 +1,46 @@
+Fusion Strategies
+=================
+
+Switch language: :doc:`../zh/FusionStrategies`
+
+Enhancer-promoter prediction is not only about single-sequence encoding. It is
+also about how two encoded regions are combined before classification.
+
+Supported strategies
+++++++++++++++++++++
+
+- ``concat``
+- ``add``
+- ``subtract``
+- ``multiply``
+- ``bilinear``
+- ``concat_sub_mul``
+
+Why fusion matters
+++++++++++++++++++
+
+Even a strong encoder can underperform if the pairwise interaction layer is too
+weak. Fusion determines how much relational information between enhancer and
+promoter embeddings is exposed to the classifier.
+
+Interpretation of the main options
+++++++++++++++++++++++++++++++++++
+
+- ``concat`` keeps the two vectors intact and lets the classifier learn the
+  interaction.
+- ``add`` emphasizes shared magnitude and symmetric aggregation.
+- ``subtract`` exposes directional difference.
+- ``multiply`` highlights element-wise agreement or co-activation.
+- ``bilinear`` offers a more expressive learned pairwise interaction.
+- ``concat_sub_mul`` explicitly combines identity, difference, and agreement
+  signals in one representation.
+
+Default choice
+++++++++++++++
+
+The repository uses ``concat_sub_mul`` as the default because it tends to be a
+balanced representation-rich option without requiring the parameter overhead of a
+full bilinear interaction.
+
+.. image:: ../img/div.png
+

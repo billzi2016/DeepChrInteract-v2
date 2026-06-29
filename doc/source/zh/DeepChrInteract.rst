@@ -1,98 +1,72 @@
-DeepChrInteract 模型与方法
-==========================
+DeepChrInteract 模型总览
+========================
 
 切换语言: :doc:`../en/DeepChrInteract`
 
-集成深度学习模型
-+++++++++++++++++++++++++++++++++++++++
+本页作为模型体系的导航页，而不是把全部架构塞进一个超长页面。当前项目覆盖了
+经典卷积基线、循环序列模型、注意力模型、状态空间风格编码器、DNA 基础模型、
+以及自监督预训练路线。
 
-旧版文档中已经包含多种模型，例如：
+模型地图
++++++++++++++++++++++++++++++
 
-- ``onehot_cnn_one_branch``
-- ``onehot_cnn_two_branch``
-- ``onehot_embedding_dense``
-- ``onehot_embedding_cnn_one_branch``
-- ``onehot_embedding_cnn_two_branch``
-- ``onehot_dense``
-- ``onehot_resnet18``
-- ``embedding_cnn_one_branch``
-- ``embedding_cnn_two_branch``
+- 经典卷积编码器：:doc:`CNNModels`
+- 残差卷积路线：:doc:`ResNetModels`
+- 循环模型：:doc:`BiLSTMModel`、:doc:`mLSTMModel`
+- 注意力家族：:doc:`TransformerModel`、:doc:`LinearTransformerModel`、
+  :doc:`iTransformerModel`
+- 线性时间 / 状态空间风格模型：:doc:`MambaModel`、:doc:`RWKVModel`
+- 混合架构：:doc:`HybridModels`
+- 基础模型与自监督路线：:doc:`DNAFoundationModels`、:doc:`MAEModel`
+- enhancer-promoter 配对层：:doc:`FusionStrategies`
 
-当前项目保留这种“多模型可比较”的核心价值，并扩展为统一的 PyTorch 模型注册表。
+注册表概览
++++++++++++++++++++++++++++++
 
-模型注册表
-++++++++++
-
-A 组：经典 CNN 基线
-
-- ``M1``：单路 CNN 基线
-- ``M2``：双路 CNN 基线
-- ``M3``：k-mer embedding + CNN
-
-B 组：循环序列模型
-
-- ``M4``：双向 LSTM
-- ``M5``：mLSTM / xLSTM 风格模型
-
-C 组：注意力模型
-
-- ``M6``：带 CNN 前端的标准 Transformer
+- ``M1``：单路 CNN
+  最基础的局部 motif baseline。详情页：:doc:`CNNModels`
+- ``M2``：双路 CNN
+  enhancer / promoter 分开编码。详情页：:doc:`CNNModels`
+- ``M3``：k-mer + CNN
+  token embedding 加卷积。详情页：:doc:`CNNModels`
+- ``ResNet18 / ResNet34``
+  更深的残差卷积路线。详情页：:doc:`ResNetModels`
+- ``M4``：BiLSTM
+  双向顺序依赖建模。详情页：:doc:`BiLSTMModel`
+- ``M5``：mLSTM
+  矩阵记忆递归建模。详情页：:doc:`mLSTMModel`
+- ``M6``：Transformer
+  CNN 压缩后做全局注意力。详情页：:doc:`TransformerModel`
 - ``M7``：Linear Transformer
+  核函数化线性注意力。详情页：:doc:`LinearTransformerModel`
 - ``M8``：iTransformer
-
-D 组：线性递推 / 状态空间类模型
-
+  通道维重解释注意力。详情页：:doc:`iTransformerModel`
 - ``M9``：Mamba
+  选择性状态空间建模。详情页：:doc:`MambaModel`
 - ``M10``：RWKV
-
-E 组：混合与预训练编码器
-
+  线性递推 time mixing。详情页：:doc:`RWKVModel`
 - ``M11``：CNN + BiLSTM
+  局部检测器加循环上下文。详情页：:doc:`HybridModels`
 - ``M12``：CNN + Transformer
+  局部检测器加全局注意力。详情页：:doc:`HybridModels`
 - ``M13``：DNA LLM encoder
+  外部预训练基因组表示。详情页：:doc:`DNAFoundationModels`
 - ``M14``：MAE 预训练 Transformer
+  在项目数据上的自监督预训练。详情页：:doc:`MAEModel`
 
-融合策略
-++++++++
+设计逻辑
++++++++++++++++++++++++++++++
 
-框架支持六种 enhancer-promoter 融合方式：
+这个项目的广度是有意为之，用来展示一条完整的序列建模光谱：
 
-- ``concat``
-- ``add``
-- ``subtract``
-- ``multiply``
-- ``bilinear``
-- ``concat_sub_mul`` (默认)
+- CNN 负责局部模式与 motif 抽取；
+- 更深的残差卷积负责把卷积路线继续推深；
+- 循环模型负责顺序依赖；
+- 注意力模型负责全局交互；
+- 线性时间 / 状态空间路线负责长序列效率；
+- 基础模型负责迁移学习；
+- MAE 路线负责贴近任务分布的自监督表征学习。
 
-当前实现原则
-++++++++++++
-
-- 所有模型通过 ``build_model(model_id, config)`` 统一构建；
-- 训练接口统一为 enhancer / promoter 配对输入；
-- 每次实验保存 JSON 配置快照；
-- 评估指标使用 AUROC、AUPRC、F1、Accuracy；
-- 不再采用旧版 PNG 渲染流程。
-
-训练流程特征
-++++++++++++
-
-当前训练循环包含：
-
-- Adam 优化器；
-- cosine warm restarts 调度；
-- 梯度裁剪；
-- 基于验证集 AUROC 的 early stopping；
-- ``best.pt`` 与 ``last.pt`` checkpoint；
-- 支持 dummy 模式做无数据完整性验证。
-
-现代化改造的意义
-++++++++++++++++
-
-这不只是代码迁移，而是方法层面的扩展：
-
-- 保留经典卷积模型，方便与旧版结果或思路对齐；
-- 增加 RNN、Transformer、线性时间模型与状态空间模型；
-- 引入 DNA foundation model embedding，对比手工编码与预训练表示；
-- 通过 MAE 探索标签较少场景下的序列表征学习。
+这种结构不仅便于比较指标，也便于比较归纳偏置、运行复杂度、显存开销和数据效率。
 
 .. image:: ../img/div.png

@@ -1,99 +1,84 @@
-DeepChrInteract Models and Methods
-==================================
+DeepChrInteract Model Overview
+==============================
 
 Switch language: :doc:`../zh/DeepChrInteract`
 
-Integrated Deep learning models
-+++++++++++++++++++++++++++++++
+This page serves as the navigation hub for the model system rather than trying
+to explain every architecture in a single long document. The project spans
+classical convolutional baselines, recurrent sequence models, attention-based
+architectures, state-space style encoders, DNA foundation models, and
+self-supervised pretraining.
 
-The legacy release included multiple models such as
-``onehot_cnn_one_branch``, ``onehot_cnn_two_branch``,
-``onehot_embedding_dense``, ``onehot_embedding_cnn_one_branch``,
-``onehot_embedding_cnn_two_branch``, ``onehot_dense``,
-``onehot_resnet18``, ``embedding_cnn_one_branch``, and
-``embedding_cnn_two_branch``.
+Model family map
+++++++++++++++++
 
-The current project preserves that comparative spirit and expands the model
-family to fourteen encoder variants under a unified PyTorch registry.
+- Classical convolutional encoders:
+  :doc:`CNNModels`
+- Residual convolutional branch:
+  :doc:`ResNetModels`
+- Recurrent encoders:
+  :doc:`BiLSTMModel`, :doc:`mLSTMModel`
+- Attention family:
+  :doc:`TransformerModel`, :doc:`LinearTransformerModel`,
+  :doc:`iTransformerModel`
+- Linear-time and state-space style models:
+  :doc:`MambaModel`, :doc:`RWKVModel`
+- Hybrid architectures:
+  :doc:`HybridModels`
+- Foundation-model and self-supervised routes:
+  :doc:`DNAFoundationModels`, :doc:`MAEModel`
+- Pairwise representation layer:
+  :doc:`FusionStrategies`
 
-Model registry
-++++++++++++++
+Registry snapshot
++++++++++++++++++
 
-Group A: classical CNN baselines
-
-- ``M1``: CNN single-branch baseline
-- ``M2``: CNN dual-branch baseline
-- ``M3``: k-mer embedding plus CNN
-
-Group B: recurrent sequence models
-
-- ``M4``: bidirectional LSTM
-- ``M5``: mLSTM / xLSTM-style sequence model
-
-Group C: attention-based models
-
-- ``M6``: standard Transformer with CNN frontend
+- ``M1``: CNN single-branch
+  Simplest local motif baseline. Detail page: :doc:`CNNModels`
+- ``M2``: CNN dual-branch
+  Separate enhancer/promoter encoding. Detail page: :doc:`CNNModels`
+- ``M3``: k-mer + CNN
+  Token embedding plus convolution. Detail page: :doc:`CNNModels`
+- ``ResNet18 / ResNet34``
+  Deeper residual convolution route. Detail page: :doc:`ResNetModels`
+- ``M4``: BiLSTM
+  Bidirectional sequential dependency modeling. Detail page: :doc:`BiLSTMModel`
+- ``M5``: mLSTM
+  Matrix-memory recurrent modeling. Detail page: :doc:`mLSTMModel`
+- ``M6``: Transformer
+  Global attention after CNN compression. Detail page: :doc:`TransformerModel`
 - ``M7``: Linear Transformer
+  Kernelized linear attention. Detail page: :doc:`LinearTransformerModel`
 - ``M8``: iTransformer
-
-Group D: linear-recurrence and state-space style models
-
+  Channel-wise attention reinterpretation. Detail page: :doc:`iTransformerModel`
 - ``M9``: Mamba
+  Selective state-space sequence modeling. Detail page: :doc:`MambaModel`
 - ``M10``: RWKV
-
-Group E: hybrid and pretrained encoders
-
+  Linear-recurrence time mixing. Detail page: :doc:`RWKVModel`
 - ``M11``: CNN + BiLSTM
+  Local detector plus recurrent context. Detail page: :doc:`HybridModels`
 - ``M12``: CNN + Transformer
+  Local detector plus global attention. Detail page: :doc:`HybridModels`
 - ``M13``: DNA LLM encoder
+  External pretrained genomic representations. Detail page: :doc:`DNAFoundationModels`
 - ``M14``: MAE-pretrained Transformer
+  Self-supervised pretraining on project data. Detail page: :doc:`MAEModel`
 
-Fusion strategies
-+++++++++++++++++
+Design logic
+++++++++++++
 
-The framework supports six enhancer-promoter fusion strategies:
+The project is intentionally broad. It is meant to expose a continuum of
+sequence modeling assumptions:
 
-- ``concat``
-- ``add``
-- ``subtract``
-- ``multiply``
-- ``bilinear``
-- ``concat_sub_mul`` (default)
+- local pattern extraction through CNNs;
+- deeper residual convolution as the natural extension of the CNN family;
+- ordered dependency modeling through recurrent cells;
+- global interaction modeling through attention;
+- long-context efficiency through linear-time or state-space style models;
+- transfer learning through pretrained genomic foundation models;
+- task-adapted representation learning through MAE-style pretraining.
 
-Current implementation principles
-+++++++++++++++++++++++++++++++++
-
-- all models are constructed through ``build_model(model_id, config)``;
-- the training interface is unified around paired enhancer/promoter input;
-- experiment configuration is stored as JSON for reproducibility;
-- evaluation uses AUROC, AUPRC, F1, and accuracy rather than accuracy alone;
-- the PNG rendering path used in the legacy system is removed.
-
-Training behavior
-+++++++++++++++++
-
-The training loop includes:
-
-- Adam optimization;
-- cosine warm restarts scheduling;
-- gradient clipping;
-- validation AUROC-driven early stopping;
-- ``best.pt`` and ``last.pt`` checkpointing;
-- optional dummy mode for end-to-end pipeline verification.
-
-Why the modernization matters
-+++++++++++++++++++++++++++++
-
-The project is not only a code migration. It is a methodological expansion:
-
-- classical local convolutional inductive bias is retained for baseline
-  reproducibility;
-- recurrent, attention-based, and linear-time architectures are added for
-  longer-range sequence dependency modeling;
-- DNA foundation model embeddings allow comparison between handcrafted encoding
-  schemes and pretrained genomic representations;
-- MAE-style pretraining explores label-efficient representation learning for
-  regulatory genomics.
+This organization makes it easier to compare not only raw performance, but also
+inductive bias, runtime behavior, memory tradeoffs, and data efficiency.
 
 .. image:: ../img/div.png
-

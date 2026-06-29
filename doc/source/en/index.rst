@@ -14,6 +14,19 @@ The preserved legacy pages are also available through :doc:`../legacy/index`.
    BiologicalBackground
    QuickStart
    DeepChrInteract
+   CNNModels
+   ResNetModels
+   BiLSTMModel
+   mLSTMModel
+   TransformerModel
+   LinearTransformerModel
+   iTransformerModel
+   MambaModel
+   RWKVModel
+   HybridModels
+   DNAFoundationModels
+   MAEModel
+   FusionStrategies
    DataOrganization
    TrainingAndEvaluation
    Experiments

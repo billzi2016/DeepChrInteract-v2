@@ -42,6 +42,64 @@ Chinese:
 
 ![Documentation Chinese](assets/docs/docs-zh.png)
 
+### Model Documentation Gallery
+
+Model overview:
+
+![Model Overview](assets/docs/models/model-overview.png)
+
+CNN models:
+
+![CNN Models](assets/docs/models/cnn-models.png)
+
+ResNet models:
+
+![ResNet Models](assets/docs/models/resnet-models.png)
+
+BiLSTM model:
+
+![BiLSTM Model](assets/docs/models/bilstm-model.png)
+
+mLSTM model:
+
+![mLSTM Model](assets/docs/models/mlstm-model.png)
+
+Transformer model:
+
+![Transformer Model](assets/docs/models/transformer-model.png)
+
+Linear Transformer model:
+
+![Linear Transformer Model](assets/docs/models/linear-transformer-model.png)
+
+iTransformer model:
+
+![iTransformer Model](assets/docs/models/itransformer-model.png)
+
+Mamba model:
+
+![Mamba Model](assets/docs/models/mamba-model.png)
+
+RWKV model:
+
+![RWKV Model](assets/docs/models/rwkv-model.png)
+
+Hybrid models:
+
+![Hybrid Models](assets/docs/models/hybrid-models.png)
+
+DNA foundation models:
+
+![DNA Foundation Models](assets/docs/models/dna-foundation-models.png)
+
+MAE pretraining model:
+
+![MAE Model](assets/docs/models/mae-model.png)
+
+Fusion strategies:
+
+![Fusion Strategies](assets/docs/models/fusion-strategies.png)
+
 ## Repository Structure
 
 ```text

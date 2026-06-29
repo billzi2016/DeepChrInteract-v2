@@ -6,6 +6,34 @@
 引入了 14 种编码器架构（包含 Mamba、RWKV、mLSTM、Linear Transformer、iTransformer、MAE 等前沿模型），
 并实现了 6 种增强子–启动子融合策略。
 
+## 文档
+
+- 文档源码：`doc/`
+- 双语 Sphinx 文档入口：`doc/source/index.rst`
+- 本地构建：`make -C doc html`
+- 本地生成后的首页：`doc/build/html/index.html`
+- GitHub Pages 预期地址：<https://billzi2016.github.io/DeepChrInteract-v2/>
+
+仓库已补充 GitHub Pages 工作流：
+
+- `.github/workflows/docs.yml`
+
+首次启用时，需要在 GitHub 仓库设置中打开 Pages，并将 Source 设为 `GitHub Actions`。
+
+### 文档页面预览
+
+首页：
+
+![Documentation Home](assets/docs/docs-home.png)
+
+English：
+
+![Documentation English](assets/docs/docs-en.png)
+
+中文：
+
+![Documentation Chinese](assets/docs/docs-zh.png)
+
 ---
 
 ## 目录结构

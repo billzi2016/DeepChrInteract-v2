@@ -24,6 +24,11 @@ creates a distinctive model:
 - position-wise nonlinear transformation is still retained;
 - complexity is driven by channel count rather than raw sequence length.
 
+The conceptual inversion is the main point. Instead of treating positions as
+tokens and channels as features inside each token, iTransformer lets the
+channels become the attended entities while sequence positions behave more like
+the observation axis over which those variables are organized.
+
 Strengths
 +++++++++
 
@@ -39,4 +44,3 @@ Limitations
   strong signal carrier for the task.
 
 .. image:: ../img/div.png
-

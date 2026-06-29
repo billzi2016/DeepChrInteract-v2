@@ -15,6 +15,17 @@ MAE 预训练模型
 3. 重建被遮蔽内容；
 4. 用学到的编码器做有监督 EPI 分类。
 
+其重建目标可以写成：
+
+.. math::
+
+   \mathcal{L}_{\mathrm{MAE}} =
+   \frac{1}{|\mathcal{M}|}\sum_{i \in \mathcal{M}}
+   \ell(\hat{x}_i, x_i)
+
+其中 :math:`\mathcal{M}` 是被 mask 的 patch 集合，:math:`\ell` 用来衡量重建结果
+与真实内容之间的差异。
+
 它和 M13 的区别
 +++++++++++++++
 
@@ -36,6 +47,9 @@ MAE 预训练模型
 - 编码器：Transformer 风格序列编码器
 - 预训练目标：mask reconstruction
 - 微调目标：enhancer-promoter 配对分类
+
+也就是说，这个编码器会先在无监督条件下学习“序列结构长什么样”，然后再被迁移到有监督
+的配对分类任务上。
 
 项目中的作用
 +++++++++++++++++++++++++++++

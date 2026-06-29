@@ -21,6 +21,17 @@ Core idea
 - gating is stabilized in log space;
 - a bidirectional wrapper is used so the encoder sees context from both sides.
 
+One abstract view of the memory update is:
+
+.. math::
+
+   C_t = f_t \, C_{t-1} + i_t \, (v_t \otimes k_t)
+
+where :math:`C_t` is matrix-valued memory, :math:`v_t \otimes k_t` denotes a
+structured outer-product write, and :math:`i_t, f_t` control write and retain
+behavior. Compared with vector memory, this allows the state to preserve richer
+interaction structure.
+
 Why it is interesting for genomic sequences
 +++++++++++++++++++++++++++++++++++++++++++
 
@@ -28,6 +39,10 @@ Genomic regulatory sequences often involve combinational dependencies rather
 than isolated motifs. Matrix-memory recurrence is attractive because it can, in
 principle, preserve richer interaction structure across positions than a simple
 hidden vector.
+
+That becomes relevant when one motif changes the role of another or when small
+groups of motifs behave as interacting units rather than independent pattern
+matches.
 
 Strengths
 +++++++++
@@ -51,4 +66,3 @@ benchmark beyond classical LSTMs and gives the documentation a bridge between
 legacy sequence models and newer state-space or attention families.
 
 .. image:: ../img/div.png
-

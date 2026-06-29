@@ -24,6 +24,15 @@ Architecture summary
 - Encoder: stacked Transformer encoder layers
 - Output: CLS representation
 
+The core attention operator is:
+
+.. math::
+
+   \mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+
+This gives each token a content-dependent weighted combination of all other
+tokens, which is why the Transformer is the canonical global-interaction model.
+
 Why the CNN frontend is important
 +++++++++++++++++++++++++++++++++
 
@@ -31,6 +40,10 @@ Direct quadratic attention over full 10kbp single-base sequences is expensive.
 The CNN frontend reduces token count before the Transformer stage, allowing the
 model to keep the benefits of global attention without paying the full
 quadratic cost on the raw sequence length.
+
+Conceptually, the CNN frontend acts as a local compression layer: motif-scale
+signals are distilled into a shorter token sequence before the attention module
+models wider-range dependencies among those compressed units.
 
 Strengths
 +++++++++
@@ -46,4 +59,3 @@ Limitations
 - relies on downsampling, which may compress away some fine-grained detail.
 
 .. image:: ../img/div.png
-

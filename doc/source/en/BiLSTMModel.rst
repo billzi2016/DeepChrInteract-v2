@@ -23,6 +23,32 @@ Architecture summary
 - Hidden width: 256 per direction
 - Output: concatenated forward/backward final states
 
+At each step, an LSTM updates gates and memory through:
+
+.. math::
+
+   i_t = \sigma(W_i x_t + U_i h_{t-1} + b_i)
+
+.. math::
+
+   f_t = \sigma(W_f x_t + U_f h_{t-1} + b_f)
+
+.. math::
+
+   o_t = \sigma(W_o x_t + U_o h_{t-1} + b_o)
+
+.. math::
+
+   \tilde{c}_t = \tanh(W_c x_t + U_c h_{t-1} + b_c)
+
+.. math::
+
+   c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t, \qquad
+   h_t = o_t \odot \tanh(c_t)
+
+The bidirectional encoder runs this recurrence in both directions so that each
+output representation can reflect both upstream and downstream context.
+
 Why this helps for EPI
 ++++++++++++++++++++++
 
@@ -32,6 +58,9 @@ not confined to a single motif window. A BiLSTM can model:
 - ordered motif progression;
 - local-to-mid-range contextual accumulation;
 - asymmetric sequence signals that plain pooling may wash out.
+
+This matters when the functional meaning of a motif depends on order, nearby
+context, or the sequence of several local events rather than on isolated hits.
 
 Strengths
 +++++++++
@@ -55,4 +84,3 @@ benchmark. It helps answer whether explicit sequential recurrence remains useful
 after introducing Transformer-style, state-space, and foundation-model routes.
 
 .. image:: ../img/div.png
-

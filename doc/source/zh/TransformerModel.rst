@@ -23,11 +23,23 @@ Transformer 模型
 - 编码器：堆叠 TransformerEncoderLayer
 - 输出：CLS 表示
 
+它的核心注意力算子可以写成：
+
+.. math::
+
+   \mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+
+这意味着每个 token 都会根据内容，自适应地汇总其他 token 的信息，因此 Transformer
+才会成为最标准的全局交互模型。
+
 为什么 CNN 前端重要
 +++++++++++++++++++
 
 如果直接对 10kbp 单碱基序列做二次复杂度注意力，代价会很高。CNN 前端先压缩 token
 数，可以让模型保留全局注意力优势，同时避免在原始长度上直接支付完整二次代价。
+
+从功能上看，CNN 前端扮演的是局部压缩器：先把 motif 级局部信号提炼成更短的 token
+序列，再让注意力层在这些压缩单元之间建模更大范围依赖。
 
 优势
 +++

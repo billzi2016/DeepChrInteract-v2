@@ -24,12 +24,27 @@ Project implementation highlights
 - Channel component: per-position feed-forward style mixing
 - Stabilization: log-space handling in the recurrent weighting path
 
+Its weighted key-value accumulation can be viewed schematically as a decayed
+running summary:
+
+.. math::
+
+   s_t = \alpha_t \odot s_{t-1} + \beta_t \odot v_t, \qquad
+   y_t = \frac{s_t}{z_t}
+
+where the decay terms control how much old evidence is retained and the
+normalization path keeps the recurrent aggregation numerically stable.
+
 Why this is relevant for EPI
 ++++++++++++++++++++++++++++
 
 Enhancer-promoter prediction needs more than isolated motif hits. RWKV offers an
 alternative way to accumulate sequence evidence across long contexts while
 avoiding classic quadratic attention.
+
+This makes RWKV attractive when the task depends on gradual evidence
+accumulation across many positions rather than only on a few sharp token-token
+links.
 
 Strengths
 +++++++++
@@ -45,4 +60,3 @@ Limitations
 - requires careful numerical treatment for stable sequence accumulation.
 
 .. image:: ../img/div.png
-

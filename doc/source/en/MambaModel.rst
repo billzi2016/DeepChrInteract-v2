@@ -20,6 +20,17 @@ Project implementation
 - Fallback runtime: PyTorch approximation that preserves pipeline usability
 - Output: sequence mean pooling after stacked blocks
 
+At a high level, the selective state-space update can be summarized as:
+
+.. math::
+
+   h_t = \bar{A}(x_t) h_{t-1} + \bar{B}(x_t) x_t, \qquad
+   y_t = C(x_t) h_t
+
+Unlike fixed-coefficient state-space models, the transition depends on the
+current input, which is why Mamba can adapt its memory behavior to sequence
+content.
+
 Why this matters in practice
 ++++++++++++++++++++++++++++
 
@@ -43,4 +54,3 @@ The fallback path is useful for portability and pipeline validation, but should
 not be treated as identical to the optimized implementation.
 
 .. image:: ../img/div.png
-

@@ -25,6 +25,16 @@ DNA 基础模型
 - frozen：冻结 backbone，只训练投影层和任务头
 - finetune：以较小学习率继续更新 backbone
 
+如果用表示学习流水线来写，它其实就是：
+
+.. math::
+
+   \text{DNA sequence} \rightarrow \text{tokenizer} \rightarrow \text{pretrained backbone}
+   \rightarrow \text{sequence embedding} \rightarrow \text{task head}
+
+它要回答的核心问题是：大规模基因组预训练是否已经学到了足够强的调控先验，从而让项目级
+数据集不必再从零开始学习全部表示。
+
 为什么要保留多个 backbone
 +++++++++++++++++++++++++
 

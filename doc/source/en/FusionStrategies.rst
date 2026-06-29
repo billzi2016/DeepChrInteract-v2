@@ -16,12 +16,38 @@ Supported strategies
 - ``bilinear``
 - ``concat_sub_mul``
 
+If enhancer and promoter embeddings are written as :math:`h_e` and :math:`h_p`,
+the main fusion forms can be summarized as:
+
+.. math::
+
+   \mathrm{concat}: [h_e; h_p]
+
+.. math::
+
+   \mathrm{add}: h_e + h_p
+
+.. math::
+
+   \mathrm{subtract}: h_e - h_p
+
+.. math::
+
+   \mathrm{multiply}: h_e \odot h_p
+
+.. math::
+
+   \mathrm{concat\_sub\_mul}: [h_e; h_p; h_e - h_p; h_e \odot h_p]
+
 Why fusion matters
 ++++++++++++++++++
 
 Even a strong encoder can underperform if the pairwise interaction layer is too
 weak. Fusion determines how much relational information between enhancer and
 promoter embeddings is exposed to the classifier.
+
+This is why fusion should not be treated as a minor implementation detail. It
+defines what kinds of pair structure the classifier is allowed to see directly.
 
 Interpretation of the main options
 ++++++++++++++++++++++++++++++++++
@@ -43,4 +69,3 @@ balanced representation-rich option without requiring the parameter overhead of 
 full bilinear interaction.
 
 .. image:: ../img/div.png
-

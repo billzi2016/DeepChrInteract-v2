@@ -15,11 +15,36 @@
 - ``bilinear``
 - ``concat_sub_mul``
 
+如果把 enhancer / promoter 表示写成 :math:`h_e` 和 :math:`h_p`，那么主要融合形式
+可以写成：
+
+.. math::
+
+   \mathrm{concat}: [h_e; h_p]
+
+.. math::
+
+   \mathrm{add}: h_e + h_p
+
+.. math::
+
+   \mathrm{subtract}: h_e - h_p
+
+.. math::
+
+   \mathrm{multiply}: h_e \odot h_p
+
+.. math::
+
+   \mathrm{concat\_sub\_mul}: [h_e; h_p; h_e - h_p; h_e \odot h_p]
+
 为什么融合层重要
 +++++++++++++++++++++++++++++
 
 即便单路编码器很强，如果 pairwise interaction 层太弱，最终性能仍可能受限。
 融合层决定了 enhancer 与 promoter 之间的关系信息，能以多丰富的形式暴露给分类器。
+
+所以融合层不应该被看成无关紧要的小实现细节。它直接决定了分类器到底能看到哪些关系结构。
 
 主要策略的含义
 +++++++++++++++++++++++++++++

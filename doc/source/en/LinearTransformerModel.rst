@@ -21,12 +21,27 @@ Project implementation highlights
 - Attention: ELU+1 kernel feature map
 - Pooling: mean pooling over sequence positions
 
+The key approximation replaces softmax attention with feature maps:
+
+.. math::
+
+   \mathrm{Attn}(Q, K, V) \approx
+   \frac{\phi(Q)\big(\phi(K)^\top V\big)}
+        {\phi(Q)\big(\phi(K)^\top \mathbf{1}\big)}
+
+where :math:`\phi(\cdot)` is a positive kernel feature map such as ELU+1. This
+reorders the computation so sequence length scaling becomes linear in style.
+
 Why it matters for EPI
 ++++++++++++++++++++++
 
 This model asks an important question: can we keep the global interaction flavor
 of attention while scaling better to long DNA sequences than a standard
 Transformer?
+
+That question matters directly for genomic inputs because long-range regulatory
+dependencies are scientifically relevant, but full quadratic attention becomes
+costly exactly in the length regime where those dependencies matter most.
 
 Strengths
 +++++++++
@@ -44,4 +59,3 @@ Limitations
   relevant to the task.
 
 .. image:: ../img/div.png
-

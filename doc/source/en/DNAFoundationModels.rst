@@ -27,6 +27,17 @@ Two usage modes
   head;
 - finetune mode: update the backbone with a smaller learning rate.
 
+In representation terms, the pipeline is:
+
+.. math::
+
+   \text{DNA sequence} \rightarrow \text{tokenizer} \rightarrow \text{pretrained backbone}
+   \rightarrow \text{sequence embedding} \rightarrow \text{task head}
+
+The scientific question is whether broad genomic pretraining has already
+captured regulatory priors that a project-level dataset would struggle to learn
+from scratch.
+
 Why multiple backbones are useful
 +++++++++++++++++++++++++++++++++
 
@@ -46,4 +57,3 @@ learning. It asks whether external genomic prior knowledge can outperform or
 complement task-specific training from raw sequence encodings.
 
 .. image:: ../img/div.png
-

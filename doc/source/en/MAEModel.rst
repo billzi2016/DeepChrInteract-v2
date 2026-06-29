@@ -15,6 +15,17 @@ The model uses a Masked Autoencoder style workflow:
 3. reconstruct the masked content;
 4. reuse the learned encoder for supervised EPI prediction.
 
+The reconstruction objective can be written as:
+
+.. math::
+
+   \mathcal{L}_{\mathrm{MAE}} =
+   \frac{1}{|\mathcal{M}|}\sum_{i \in \mathcal{M}}
+   \ell(\hat{x}_i, x_i)
+
+where :math:`\mathcal{M}` is the masked patch set and :math:`\ell` measures how
+well the decoder recovers hidden sequence content.
+
 Why this is different from M13
 +++++++++++++++++++++++++++++++
 
@@ -40,6 +51,10 @@ Implementation logic
 - Pretraining objective: masked reconstruction
 - Finetuning objective: paired enhancer-promoter classification
 
+This means the encoder is first optimized to model sequence structure without
+labels, then repurposed as a supervised feature extractor for the downstream
+interaction task.
+
 Project role
 ++++++++++++
 
@@ -51,4 +66,3 @@ This model gives the documentation a full representation-learning ladder:
 - in-project self-supervised pretraining.
 
 .. image:: ../img/div.png
-

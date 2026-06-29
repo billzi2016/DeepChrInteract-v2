@@ -20,6 +20,11 @@
 
 首次启用时，需要在 GitHub 仓库设置中打开 Pages，并将 Source 设为 `GitHub Actions`。
 
+## CI/CD
+
+- 英文版：[`CICD.md`](CICD.md)
+- 中文版：[`CICD_CN.md`](CICD_CN.md)
+
 ### 文档页面预览
 
 首页：

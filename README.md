@@ -12,6 +12,7 @@ and DNA language model backbones, together with 6 enhancer-promoter fusion
 strategies.
 
 Chinese repository overview is available in [README_CN.md](README_CN.md).
+CI/CD guide is available in [CICD.md](CICD.md).
 
 ## Documentation
 
@@ -27,6 +28,11 @@ The repository already includes the GitHub Pages workflow:
 
 To enable publishing, open GitHub repository settings and set Pages source to
 `GitHub Actions`.
+
+## CI/CD
+
+- English CI/CD guide: [CICD.md](CICD.md)
+- Chinese CI/CD guide: [CICD_CN.md](CICD_CN.md)
 
 ### Documentation Preview
 

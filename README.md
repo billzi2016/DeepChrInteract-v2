@@ -1,135 +1,122 @@
 # DeepChrInteract-v2
 
-基于 PyTorch 的增强子–启动子相互作用（EPI）预测框架，是原始 [DeepChrInteract](https://github.com/lichen-lab/DeepChrInteract)（Keras 1.x）的现代化复现与扩展。
+DeepChrInteract-v2 is a PyTorch-based framework for enhancer-promoter interaction
+(EPI) prediction. It is a modern reimplementation and extension of the original
+[DeepChrInteract](https://github.com/lichen-lab/DeepChrInteract) project, which
+was built on the deprecated Keras 1.x / early TensorFlow stack.
 
-原始代码因 Keras/TensorFlow API 弃用已无法运行，本仓库在保留原始核心设计的基础上，
-引入了 14 种编码器架构（包含 Mamba、RWKV、mLSTM、Linear Transformer、iTransformer、MAE 等前沿模型），
-并实现了 6 种增强子–启动子融合策略。
+The new repository preserves the original scientific direction while expanding
+the engineering and modeling scope. It includes 14 encoder architectures,
+covering CNNs, recurrent models, Transformer variants, state-space style models,
+and DNA language model backbones, together with 6 enhancer-promoter fusion
+strategies.
 
-## 文档
+Chinese repository overview is available in [README_CN.md](README_CN.md).
 
-- 文档源码：`doc/`
-- 双语 Sphinx 文档入口：`doc/source/index.rst`
-- 本地构建：`make -C doc html`
-- 本地生成后的首页：`doc/build/html/index.html`
-- GitHub Pages 预期地址：<https://billzi2016.github.io/DeepChrInteract-v2/>
+## Documentation
 
-仓库已补充 GitHub Pages 工作流：
+- Documentation source: `doc/`
+- Bilingual Sphinx entry: `doc/source/index.rst`
+- Local build command: `make -C doc html`
+- Generated local homepage: `doc/build/html/index.html`
+- Expected GitHub Pages URL: <https://billzi2016.github.io/DeepChrInteract-v2/>
+
+The repository already includes the GitHub Pages workflow:
 
 - `.github/workflows/docs.yml`
 
-首次启用时，需要在 GitHub 仓库设置中打开 Pages，并将 Source 设为 `GitHub Actions`。
+To enable publishing, open GitHub repository settings and set Pages source to
+`GitHub Actions`.
 
-### 文档页面预览
+### Documentation Preview
 
-首页：
+Home:
 
 ![Documentation Home](assets/docs/docs-home.png)
 
-English：
+English:
 
 ![Documentation English](assets/docs/docs-en.png)
 
-中文：
+Chinese:
 
 ![Documentation Chinese](assets/docs/docs-zh.png)
 
----
+## Repository Structure
 
-## 目录结构
-
-```
+```text
 .
 ├── src/
-│   ├── config.py          # 超参数管理（dataclass + argparse）
-│   ├── encoders.py        # DNA 序列编码（One-Hot / k-mer / LLM）
-│   ├── dataset.py         # PyTorch Dataset（onehot/kmer/llm 三种模式）
-│   ├── train.py           # 训练主循环
-│   ├── evaluate.py        # 评估系统（AUROC/AUPRC/F1/Accuracy）
+│   ├── config.py
+│   ├── encoders.py
+│   ├── dataset.py
+│   ├── train.py
+│   ├── evaluate.py
 │   └── models/
-│       ├── base.py        # 基类 + 分类头
-│       ├── fusion.py      # 6 种融合策略
-│       ├── cnn.py         # M1, M2, M3
-│       ├── bilstm.py      # M4
-│       ├── mlstm.py       # M5（xLSTM / Bio-xLSTM）
-│       ├── transformer.py # M6, M7（Linear Transformer）, M8（iTransformer）
-│       ├── mamba.py       # M9
-│       ├── rwkv.py        # M10
-│       ├── hybrid.py      # M11（CNN+BiLSTM）, M12（CNN+Transformer）
-│       ├── llm_encoder.py # M13（DNABERT / DNABERT-2 / NT / HyenaDNA）
-│       └── mae.py         # M14（MAE 预训练）
 ├── scripts/
-│   ├── preprocess.py      # 原始 .txt → train/val/test.npz
-│   ├── run_experiment.sh  # 单实验 5-seed 完整流程
-│   └── test_pipeline.py   # 管道完整性测试（无需真实数据）
-├── latex/                 # 技术文档（LaTeX）
-├── DeepChrInteract-main(old)/  # 原始 Keras 代码（存档）
-├── PRD.md                 # 需求文档
-└── TASK.md                # 任务进度看板
+│   ├── preprocess.py
+│   ├── run_experiment.sh
+│   └── test_pipeline.py
+├── latex/
+├── DeepChrInteract-main(old)/
+├── PRD.md
+└── TASK.md
 ```
 
----
+## Model Registry (M1-M14)
 
-## 模型列表（M1–M14）
-
-| 组别 | ID  | 模型 | 编码方式 |
+| Group | ID  | Model | Encoding |
 |------|-----|------|---------|
-| A | M1  | CNN 单路（Baseline 复现） | One-Hot |
-| A | M2  | CNN 双路（原始论文复现） | One-Hot |
+| A | M1  | CNN single-branch baseline | One-Hot |
+| A | M2  | CNN dual-branch baseline | One-Hot |
 | A | M3  | k-mer Embedding + CNN | k-mer |
-| B | M4  | 双向 LSTM | One-Hot |
-| B | M5  | mLSTM（xLSTM / Bio-xLSTM） | One-Hot |
-| C | M6  | 标准 Transformer | One-Hot |
-| C | M7  | Linear Transformer（O(Ld²)） | One-Hot |
-| C | M8  | iTransformer（通道维 Attention） | One-Hot |
-| D | M9  | Mamba（选择性 SSM） | One-Hot |
-| D | M10 | RWKV（指数衰减线性递推） | One-Hot |
+| B | M4  | BiLSTM | One-Hot |
+| B | M5  | mLSTM (xLSTM / Bio-xLSTM) | One-Hot |
+| C | M6  | Standard Transformer | One-Hot |
+| C | M7  | Linear Transformer | One-Hot |
+| C | M8  | iTransformer | One-Hot |
+| D | M9  | Mamba | One-Hot |
+| D | M10 | RWKV | One-Hot |
 | E | M11 | CNN + BiLSTM | One-Hot |
 | E | M12 | CNN + Transformer | One-Hot |
-| E | M13 | DNA LLM（DNABERT-2 / NT / HyenaDNA / DNABERT） | LLM 嵌入 |
-| E | M14 | MAE 预训练 Transformer | One-Hot |
+| E | M13 | DNA LLM (DNABERT / DNABERT-2 / NT / HyenaDNA) | LLM embeddings |
+| E | M14 | MAE-pretrained Transformer | One-Hot |
 
-### 融合策略（6 种）
+### Fusion Strategies
 
-| 策略 | 公式 | 输出维度 |
+| Strategy | Formula | Output Dimension |
 |------|------|---------|
 | concat | [h_e; h_p] | 2d |
 | add | h_e + h_p | d |
-| subtract | h_e − h_p | d |
+| subtract | h_e - h_p | d |
 | multiply | h_e ⊙ h_p | d |
 | bilinear | h_e^T W h_p | 1 |
-| **concat_sub_mul** *(默认)* | [h_e; h_p; h_e−h_p; h_e⊙h_p] | 4d |
+| **concat_sub_mul** *(default)* | [h_e; h_p; h_e-h_p; h_e⊙h_p] | 4d |
 
----
-
-## 安装
+## Installation
 
 ```bash
 pip install -r requirements.txt
 
-# 可选（需要 CUDA + 特殊编译）：
+# Optional, for CUDA-enabled Mamba environments:
 pip install mamba-ssm
 ```
 
----
+## Data Format
 
-## 数据格式
+Each cell type is expected to provide four plain-text sequence files:
 
-每个细胞系需要 4 个纯文本文件（每行一条 DNA 序列）：
-
-```
+```text
 data/raw/{cell_type}/
-    seq.anchor1.pos.txt   # 正样本增强子序列
-    seq.anchor2.pos.txt   # 正样本启动子序列
-    seq.anchor1.neg.txt   # 负样本增强子序列
-    seq.anchor2.neg.txt   # 负样本启动子序列
+    seq.anchor1.pos.txt
+    seq.anchor2.pos.txt
+    seq.anchor1.neg.txt
+    seq.anchor2.neg.txt
 ```
 
----
+## Quick Start
 
-## 快速开始
-
-### 1. 数据预处理（有真实数据时）
+### 1. Preprocess real data
 
 ```bash
 python scripts/preprocess.py \
@@ -138,20 +125,16 @@ python scripts/preprocess.py \
     --out_dir data
 ```
 
-### 2. 无数据管道测试
+### 2. Run a pipeline sanity check without real data
 
 ```bash
-# 测试全部 14 个模型 + 训练循环 + 评估（随机张量，无需数据）
 python scripts/test_pipeline.py
-
-# 仅快速测试部分模型
 python scripts/test_pipeline.py --quick
 ```
 
-### 3. 单实验训练
+### 3. Train a single experiment
 
 ```bash
-# M2（CNN 双路），one-hot，concat_sub_mul
 python -m src.train \
     --model_id M2 \
     --exp_id E03 \
@@ -161,35 +144,29 @@ python -m src.train \
     --seed 0
 ```
 
-### 4. 完整 5-seed 实验（含评估）
+### 4. Run a full 5-seed experiment
 
 ```bash
 bash scripts/run_experiment.sh E03 M2 GM12878 onehot concat_sub_mul
 ```
 
-### 5. M14 MAE 预训练 + 微调
+### 5. Run M14 MAE pretraining and finetuning
 
 ```bash
-# 第一阶段：MAE 预训练
 python -m src.train --model_id M14 --exp_id E16 --pretrain
-
-# 第二阶段：加载预训练权重微调（在 train.py 中通过 load_pretrained() 实现）
 python -m src.train --model_id M14 --exp_id E16
 ```
 
-### 6. M13 LLM 编码器（冻结模式）
+### 6. Use the M13 LLM encoder workflow
 
 ```bash
-# 先离线生成 LLM 嵌入（只需运行一次）
 python -c "
 from src.encoders import LLMEncoder
 import numpy as np
 enc = LLMEncoder('dnabert2')
-# seqs_e, seqs_p 从 npz 读取后传入
 enc.encode_dataset(seqs_e, seqs_p, out_dir='data/GM12878/llm_dnabert2')
 "
 
-# 再训练
 python -m src.train \
     --model_id M13 \
     --encoding_mode llm \
@@ -198,69 +175,61 @@ python -m src.train \
     --exp_id E09
 ```
 
----
+## Key Configuration Arguments
 
-## 配置参数说明
-
-| 参数 | 默认值 | 说明 |
+| Argument | Default | Description |
 |------|--------|------|
-| `--model_id` | M1 | 模型编号 M1–M14 |
+| `--model_id` | M1 | Model ID, M1-M14 |
 | `--encoding_mode` | onehot | onehot / kmer / llm |
-| `--fusion_strategy` | concat_sub_mul | 见上方融合策略表 |
-| `--cell_type` | GM12878 | 细胞系名称 |
-| `--batch_size` | 32 | 训练 batch 大小 |
-| `--lr` | 5e-5 | Adam 学习率 |
-| `--max_epochs` | 100 | 最大训练轮数 |
-| `--patience` | 15 | 早停 patience |
-| `--seed` | 0 | 随机种子 |
-| `--dummy` | False | 使用随机张量（无需真实数据）|
-| `--pretrain` | False | M14 MAE 预训练模式 |
-| `--resume` |  | 断点续训 checkpoint 路径 |
+| `--fusion_strategy` | concat_sub_mul | Fusion strategy |
+| `--cell_type` | GM12878 | Cell type |
+| `--batch_size` | 32 | Training batch size |
+| `--lr` | 5e-5 | Adam learning rate |
+| `--max_epochs` | 100 | Maximum epochs |
+| `--patience` | 15 | Early stopping patience |
+| `--seed` | 0 | Random seed |
+| `--dummy` | False | Use random tensors without real data |
+| `--pretrain` | False | Enable M14 MAE pretraining mode |
+| `--resume` |  | Resume checkpoint path |
 
----
+## Output Layout
 
-## 输出结构
-
-```
+```text
 results/{exp_id}/seed{n}/
-    config.json       # 实验配置快照
-    best.pt           # 最优 checkpoint（val AUROC）
-    last.pt           # 最新 checkpoint
-    history.json      # 每 epoch 的 loss / AUROC
-    metrics.json      # 测试集指标（AUROC/AUPRC/F1/Accuracy）
-    roc_curve.png     # ROC 曲线
-    pr_curve.png      # Precision-Recall 曲线
-    summary.json      # 多 seed 均值 ± std（在 evaluate 后生成）
+    config.json
+    best.pt
+    last.pt
+    history.json
+    metrics.json
+    roc_curve.png
+    pr_curve.png
+    summary.json
 ```
 
----
+## Main Differences from the Original Codebase
 
-## 与原始代码的主要差异
-
-| 方面 | 原始（Keras 1.x） | v2（PyTorch） |
+| Aspect | Original (Keras 1.x) | v2 (PyTorch) |
 |------|-----------------|--------------|
-| 框架 | Keras + TF 2.3 | PyTorch 2.0+ |
-| 中间文件 | PNG（imageio + ImageDataGenerator） | **无**（在线计算） |
-| 模型数量 | 4 种 | **14 种**（含 SSM/LLM/MAE） |
-| 融合策略 | concat | **6 种** |
-| 评估指标 | Accuracy | AUROC + AUPRC + F1 + Accuracy |
-| 早停 | ✗ | ✓（patience=15，val AUROC） |
-| 断点续训 | ✗ | ✓ |
-| 多 seed CI | ✗ | ✓（5 seed 均值 ± std） |
+| Framework | Keras + TF 2.3 | PyTorch 2.0+ |
+| Intermediate files | PNG-based preprocessing | **None**, online encoding |
+| Number of models | 4 | **14** |
+| Fusion strategies | concat | **6** |
+| Evaluation metrics | Accuracy | AUROC + AUPRC + F1 + Accuracy |
+| Early stopping | No | Yes |
+| Resume training | No | Yes |
+| Multi-seed summary | No | Yes |
 
----
+## Paper Materials
 
-## 论文
+Technical details are documented in `latex/main.pdf`, including:
 
-技术细节参见 `latex/main.pdf`，内容涵盖：
-- 数据编码方法（One-Hot / k-mer / LLM）
-- 全部 14 个编码器架构（含公式推导）
-- 实验设计（E01–E16 + 融合消融 F01–F06）
-- 相关工作综述（Mamba、RWKV、xLSTM、iTransformer、MAE、DNA 基础模型）
+- encoding strategies (One-Hot / k-mer / LLM)
+- all 14 encoder architectures
+- experiment plans (E01-E16 plus fusion ablations)
+- related-work coverage for Mamba, RWKV, xLSTM, iTransformer, MAE, and DNA
+  foundation models
 
----
+## Legacy Archive
 
-## 原始论文存档
-
-`DeepChrInteract-main(old)/` 目录保留了原始 Keras 实现供参考。
-作者为本仓库原始作者，已获授权在此存档。
+The original Keras implementation is preserved in `DeepChrInteract-main(old)/`
+for historical reference.

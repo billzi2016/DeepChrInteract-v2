@@ -262,14 +262,50 @@ So the current design is appropriate because it is:
 - well integrated with GitHub
 - sufficient for documentation publishing
 
-If later needed, the pipeline can be extended to include:
+## 13. Why Pages updates are not instant even with CI/CD
+
+Using CI/CD does **not** mean the website refreshes globally the moment a push
+arrives.
+
+The actual chain is:
+
+1. push reaches GitHub
+2. GitHub Actions starts the workflow
+3. the workflow builds the site
+4. the Pages artifact is uploaded
+5. GitHub Pages creates a deployment
+6. the published version propagates through GitHub's delivery layer
+
+That means CI/CD mainly guarantees **automation, traceability, and
+repeatability**. It does not guarantee zero-delay visibility at the browser.
+
+In practice, refresh latency can vary from under a minute to several minutes.
+On some repositories it can be longer, especially when the bottleneck is in the
+Pages deployment side rather than in local browser cache.
+
+This is also why a static HTML/CSS/JS site may still take time to appear after
+push:
+
+- the delay may come from Pages deployment, not from frontend code structure;
+- the delay may come from GitHub-side publication propagation;
+- disabling browser cache does not eliminate deployment latency upstream.
+
+So the correct distinction is:
+
+- **CI/CD** answers: was the new site built and deployed correctly?
+- **Pages visibility delay** answers: how quickly does the published version
+  become visible everywhere?
+
+Those are related, but they are not the same problem.
+
+## 14. If later needed, the pipeline can be extended to include:
 
 - test workflows
 - lint workflows
 - packaging workflows
 - benchmark or reproducibility checks
 
-## 13. Current public documentation URL
+## 15. Current public documentation URL
 
 The expected public Pages URL for this repository is:
 
@@ -277,11 +313,10 @@ The expected public Pages URL for this repository is:
 https://billzi2016.github.io/DeepChrInteract-v2/
 ```
 
-## 14. Key files
+## 16. Key files
 
 - workflow: `.github/workflows/docs.yml`
 - Sphinx source root: `doc/source/`
 - local build root: `doc/build/html/`
 - English repository overview: `README.md`
 - Chinese repository overview: `README_CN.md`
-

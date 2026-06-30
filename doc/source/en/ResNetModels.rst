@@ -106,4 +106,15 @@ This page keeps ResNet explicitly inside the model map. Even if the current
 active registry is centered on ``M1-M14``, ResNet should be treated as a
 documented, expected branch of the project rather than an obsolete footnote.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: still linear in sequence length per layer, but with a larger constant
+  factor than plain CNNs because depth increases substantially.
+- Memory: higher than shallow CNN baselines because many residual feature maps
+  must remain available through the stack.
+- Best-fit regime: appropriate when sequence windows are still manageable for
+  deep convolution and when hierarchical local-to-broader pattern composition is
+  more important than explicit all-pairs interaction.
+
 .. image:: ../img/div.png

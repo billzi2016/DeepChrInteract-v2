@@ -51,6 +51,16 @@ Strengths
 - explicit recurrence without relying on quadratic attention;
 - useful as a modern recurrent alternative in long-sequence benchmarking.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: still sequential in length, but with heavier per-step state updates
+  than a vanilla LSTM because matrix-style memory is maintained.
+- Memory: higher recurrent-state cost than BiLSTM, since the model preserves a
+  richer internal memory object rather than only vector hidden states.
+- Best-fit regime: valuable when sequence order and structured interaction
+  memory matter more than raw throughput.
+
 Tradeoffs
 +++++++++
 

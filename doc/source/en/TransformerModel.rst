@@ -52,6 +52,17 @@ Strengths
 - highly interpretable as the canonical attention baseline;
 - natural foundation for MAE-style pretraining reuse.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: standard self-attention is quadratic in token count,
+  :math:`O(T^2 \cdot d)`, which is why the CNN frontend is used to shorten the
+  sequence before attention.
+- Memory: attention maps also scale quadratically with token count, making this
+  the main bottleneck for long genomic inputs.
+- Best-fit regime: appropriate when the compressed token length is moderate and
+  explicit global interaction is worth the cost.
+
 Limitations
 +++++++++++
 

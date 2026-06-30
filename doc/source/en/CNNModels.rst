@@ -111,6 +111,17 @@ Shared strengths
 - Clear baseline value for benchmarking
 - Easy interpretability compared with heavier architectures
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: roughly linear in sequence length, :math:`O(L \cdot k \cdot C_{in}
+  \cdot C_{out})` per convolutional stage, with constants depending on kernel
+  count and depth.
+- Memory: usually moderate and dominated by intermediate feature maps rather
+  than pairwise interaction matrices.
+- Best-fit regime: strong default choice for short-to-medium genomic windows and
+  for large benchmark sweeps where stability and throughput matter.
+
 Shared limitations
 ++++++++++++++++++
 

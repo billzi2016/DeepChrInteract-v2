@@ -255,14 +255,56 @@ doc/build/html/
 - 和 GitHub 深度集成
 - 足够支持文档发布
 
-如果将来需要，也可以继续扩展：
+## 13. 为什么用了 CI/CD 之后网页也不是瞬间刷新
+
+用了 CI/CD，并不等于你一 `push`，全网访问到的网页内容就会立刻同步完成。
+
+真实链路其实是：
+
+1. `push` 到 GitHub
+2. GitHub Actions 启动 workflow
+3. workflow 构建站点
+4. 上传 Pages artifact
+5. GitHub Pages 创建 deployment
+6. 新版本再通过 GitHub 的发布链路逐步生效
+
+所以，CI/CD 主要解决的是：
+
+- 自动化
+- 可追踪
+- 可复现
+
+它并不保证“浏览器下一秒就一定看到新页面”。
+
+现实里，页面生效时间常常是几十秒到几分钟；有些仓库更慢，甚至可能更久。这里的瓶颈
+未必是浏览器缓存，也可能就是 GitHub Pages 自己的部署和生效链路。
+
+这也是为什么一个纯静态的 HTML/CSS/JS 个人网站，即便：
+
+- 浏览器禁用了缓存
+- CSS/JS 做了版本号
+
+更新之后依然可能不是立刻可见。因为问题不一定出在前端资源缓存，而可能出在：
+
+- Pages 还没完成部署
+- GitHub 侧发布还没完全生效
+- 访问请求还没稳定落到新版本
+
+因此更准确的区分应该是：
+
+- **CI/CD** 负责回答：新版本有没有被正确构建并正确发布
+- **Pages 刷新延迟** 负责回答：新版本多快能在外部访问中稳定可见
+
+这两件事相关，但不是一回事。
+
+## 14. 如果将来需要，也可以继续扩展
 
 - 测试 workflow
 - lint workflow
 - 打包 workflow
 - benchmark 或复现实验检查
 
-## 13. 当前文档公开地址
+## 15. 当前文档公开地址
 
 本仓库预期的 Pages 地址是：
 
@@ -270,11 +312,10 @@ doc/build/html/
 https://billzi2016.github.io/DeepChrInteract-v2/
 ```
 
-## 14. 关键文件
+## 16. 关键文件
 
 - workflow：`.github/workflows/docs.yml`
 - Sphinx 源码根目录：`doc/source/`
 - 本地构建目录：`doc/build/html/`
 - 英文仓库说明：`README.md`
 - 中文仓库说明：`README_CN.md`
-

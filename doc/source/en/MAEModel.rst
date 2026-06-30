@@ -65,4 +65,14 @@ This model gives the documentation a full representation-learning ladder:
 - external foundation models;
 - in-project self-supervised pretraining.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: pretraining is substantially more expensive than direct supervised
+  training because reconstruction must be learned before downstream finetuning.
+- Memory: encoder-decoder pretraining and later finetuning make this route
+  heavier than a simple task-only baseline.
+- Best-fit regime: appropriate when unlabeled sequence volume is available and a
+  richer in-project representation is worth extra training cost.
+
 .. image:: ../img/div.png

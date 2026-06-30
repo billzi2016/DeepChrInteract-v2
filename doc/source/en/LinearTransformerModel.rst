@@ -50,6 +50,17 @@ Strengths
 - no mandatory CNN token compression step;
 - useful for long-range sequence modeling studies.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: linear-attention style evaluation reduces dependence on sequence length
+  to approximately :math:`O(T \cdot d^2)` or similar implementation-dependent
+  linear form, avoiding full :math:`T^2` attention maps.
+- Memory: more favorable than standard attention because full pairwise token
+  matrices are not materialized.
+- Best-fit regime: attractive for long windows where global-style interaction is
+  desired but quadratic attention becomes impractical.
+
 Limitations
 +++++++++++
 

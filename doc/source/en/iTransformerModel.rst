@@ -36,6 +36,16 @@ Strengths
 - conceptually different from both CNN and standard attention routes;
 - useful as an architectural reinterpretation rather than a simple scaling tweak.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: attention cost is driven more by channel dimension than by raw sequence
+  length, which is unusually favorable for five-channel one-hot genomic input.
+- Memory: typically light relative to full position-wise attention because the
+  expensive all-position interaction matrix is avoided.
+- Best-fit regime: especially attractive when the representation remains close
+  to raw one-hot channels and a channel-centric inductive bias is desirable.
+
 Limitations
 +++++++++++
 

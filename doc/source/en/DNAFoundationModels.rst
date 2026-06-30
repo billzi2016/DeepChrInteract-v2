@@ -56,4 +56,14 @@ This family lets the benchmark compare handcrafted encoders against transfer
 learning. It asks whether external genomic prior knowledge can outperform or
 complement task-specific training from raw sequence encodings.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: depends strongly on backbone choice, from moderate k-mer language models
+  to heavier long-context pretrained encoders.
+- Memory: often the most expensive family in the repository, especially in
+  finetuning mode where the full pretrained backbone remains trainable.
+- Best-fit regime: most appropriate when external genomic prior knowledge is a
+  priority and larger accelerator memory budgets are available.
+
 .. image:: ../img/div.png

@@ -46,6 +46,16 @@ Strengths
 - relevant for comparing sequence efficiency against RWKV and Linear
   Transformer.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: designed for linear-time sequence processing, making it suitable for
+  much longer contexts than dense quadratic attention.
+- Memory: favorable for long inputs because it avoids explicit token-token
+  attention maps and instead carries state forward recurrently.
+- Best-fit regime: strong candidate for long genomic windows where preserving
+  sequence context matters but attention memory would be excessive.
+
 Caveat
 ++++++
 

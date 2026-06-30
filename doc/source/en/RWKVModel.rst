@@ -53,6 +53,17 @@ Strengths
 - distinct comparison point relative to Mamba;
 - hybrid recurrent/feed-forward character.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: recurrence yields linear-time sequence traversal, while channel-mixing
+  keeps expressive capacity at each position.
+- Memory: more favorable than quadratic attention on long sequences because the
+  model aggregates history through recurrent summaries rather than dense token
+  pair matrices.
+- Best-fit regime: useful for long contexts that benefit from gradual evidence
+  accumulation and where attention-map materialization would be wasteful.
+
 Limitations
 +++++++++++
 

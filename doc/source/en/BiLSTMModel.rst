@@ -69,6 +69,17 @@ Strengths
 - intuitive recurrent inductive bias;
 - useful comparator against attention-based and linear-time models.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: sequential recurrence gives roughly :math:`O(L \cdot H^2)` behavior per
+  layer, with limited parallelism across positions.
+- Memory: moderate for hidden states, but training cost rises with sequence
+  length because backpropagation must preserve recurrent activations across the
+  chain.
+- Best-fit regime: useful for short-to-medium windows where ordered context is
+  important and full global attention would be unnecessary or overly expensive.
+
 Limitations
 +++++++++++
 

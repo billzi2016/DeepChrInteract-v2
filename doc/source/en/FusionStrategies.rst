@@ -68,4 +68,15 @@ The repository uses ``concat_sub_mul`` as the default because it tends to be a
 balanced representation-rich option without requiring the parameter overhead of a
 full bilinear interaction.
 
+Computational complexity
+++++++++++++++++++++++++
+
+- Time: fusion itself is usually a small fraction of total runtime compared with
+  sequence encoding, except when bilinear interaction is used.
+- Memory: concatenation-based fusion enlarges classifier input width, while
+  bilinear fusion increases parameter count more aggressively.
+- Best-fit regime: simple elementwise or concatenation-based fusion is adequate
+  for broad benchmarking, whereas bilinear fusion is most useful when pairwise
+  interaction expressivity is worth added cost.
+
 .. image:: ../img/div.png
